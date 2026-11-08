@@ -1,3 +1,3 @@
 # Amend
 
-To modify an existing feature you must write an amend
+To modify an existing feature, you must write an amendment.

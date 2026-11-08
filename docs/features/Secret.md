@@ -1,6 +1,6 @@
 # Secret
 
-Secrets can be tied to an user or a workspace, mostly contain api keys or similar. Secrets stored in the cloud should be handled differently as local secrets.
+Secrets can be tied to a user or a workspace and mostly contain API keys or similar. Secrets stored in the cloud should be handled differently from local secrets.
 They should never be passed directly to agents.
 
 ## Fields
@@ -15,7 +15,7 @@ Basic CRUD (with some specifics related to encryption and keys).
 
 ### Get secret
 
-Retrieve and decode the secret, user should be prompted for a password again.
+Retrieve and decode the secret. The user should be prompted for a password again.
 
 ### Create secret
 
