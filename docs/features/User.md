@@ -7,6 +7,8 @@
 - `config` various user-wide configurations
   - `preview-changes` ask for confirmation before running commands
 
+User encryption keys are stored separately, at the moment in the app data folder. More about storage strategies in [Storage](Storage.md#Keys) 
+
 ## Actions
 
 ### Create User
@@ -16,6 +18,12 @@ Creates a user and stores his basic details. Sets most values to defaults. Passw
 ### Update password
 
 Old and new passwords are required. Existing secrets are decrypted with the old key and encrypted again using the new key.
+
+- Old password is rechecked;
+- New password is validated;
+- Operations on secrets are temporarily locked;
+- Existing secrets dek are decrypted with old and encrypted with new key and updated;
+- Password hash and master key are updated.
 
 ### Login
 

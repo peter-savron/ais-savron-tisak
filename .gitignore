@@ -25,3 +25,5 @@ replay_pid*
 
 # Idea files
 /.idea/
+
+/target
