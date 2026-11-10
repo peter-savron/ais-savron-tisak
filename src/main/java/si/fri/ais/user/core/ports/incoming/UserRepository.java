@@ -8,7 +8,7 @@ import si.fri.ais.user.core.models.User;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface UsersRepository {
+public interface UserRepository {
     Optional<User> getUser(@NotNull UUID userId);
     Optional<User> getUser(@NotEmpty String userName);
     void createUser(@NotNull User user);
