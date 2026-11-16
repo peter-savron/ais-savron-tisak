@@ -9,6 +9,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface UserRepository {
+    // TODO getAll method (with pagination (which will be ignored by CLI)
     Optional<User> getUser(@NotNull UUID userId);
     Optional<User> getUser(@NotEmpty String userName);
     void createUser(@NotNull User user);

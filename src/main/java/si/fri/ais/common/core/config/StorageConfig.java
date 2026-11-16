@@ -9,9 +9,6 @@ import static si.fri.ais.common.core.utils.MainApplicationValues.APP_NAME;
 
 @ApplicationScoped
 public class StorageConfig {
-    private static final String ENV_CACHE_PATH = "BISTRA_CACHE_PATH";
-    private static final String ENV_DATA_PATH = "BISTRA_DATA_PATH";
-    private static final String ENV_CONFIG_PATH = "BISTRA_CONFIG_PATH";
 
     private static final String WIN = "win";
     private static final String MAC = "mac";
@@ -20,34 +17,27 @@ public class StorageConfig {
 
     private final String os;
     private final String userHome;
+    private final StoragePathOverrideConfig storagePathOverrideConfig;
 
-    public StorageConfig() {
+    public StorageConfig(StoragePathOverrideConfig storagePathOverrideConfig) {
         this.os = System.getProperty("os.name").toLowerCase();
         this.userHome = System.getProperty("user.home");
+        this.storagePathOverrideConfig = storagePathOverrideConfig;
     }
 
     public Path cachePath() {
-        String envValue = System.getenv(ENV_CACHE_PATH);
-        if (hasValue(envValue)) {
-            return Paths.get(envValue);
-        }
-        return getSystemDefaultCachePath();
+        return storagePathOverrideConfig.cachePath().map(Paths::get)
+                .orElse(getSystemDefaultCachePath());
     }
 
     public Path dataPath() {
-        String envValue = System.getenv(ENV_DATA_PATH);
-        if (hasValue(envValue)) {
-            return Paths.get(envValue);
-        }
-        return getSystemDefaultDataPath();
+        return storagePathOverrideConfig.dataPath().map(Paths::get)
+                .orElse(getSystemDefaultDataPath());
     }
 
     public Path configPath() {
-        String envValue = System.getenv(ENV_CONFIG_PATH);
-        if (hasValue(envValue)) {
-            return Paths.get(envValue);
-        }
-        return getSystemDefaultConfigPath();
+        return storagePathOverrideConfig.configPath().map(Paths::get)
+                .orElse(getSystemDefaultConfigPath());
     }
 
     private boolean hasValue(String val) {
@@ -63,7 +53,7 @@ public class StorageConfig {
         } else {
             // Linux / Unix (XDG specification)
             String xdgCache = System.getenv("XDG_CACHE_HOME");
-            return xdgCache != null ? Paths.get(xdgCache, APP_NAME) : Paths.get(userHome, ".cache", APP_NAME);
+            return hasValue(xdgCache) ? Paths.get(xdgCache, APP_NAME) : Paths.get(userHome, ".cache", APP_NAME);
         }
     }
 

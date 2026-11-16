@@ -19,3 +19,7 @@ Then you can run the CLI via commands (use `--help` for mora info):
 ```shell
 java -jar target/quarkus-app/quarkus-run.jar bistra --help
 ```
+
+## Native image
+
+ArcadeDB library must be prepared for embadded mode based on their github repo, then it can be built

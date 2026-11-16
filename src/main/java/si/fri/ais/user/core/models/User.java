@@ -5,11 +5,13 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.SuperBuilder;
+import lombok.experimental.FieldNameConstants;
 import si.fri.ais.common.core.models.NamedObject;
 
 @Getter
 @Setter
 @SuperBuilder
+@FieldNameConstants
 public class User extends NamedObject {
     @NotNull private String passwordHash;
     @NotEmpty private byte[] keySalt;

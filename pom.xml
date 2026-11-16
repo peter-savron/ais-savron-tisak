@@ -161,16 +161,12 @@
 
     <profiles>
         <profile>
-            <id>native</id>
+            <id>cli</id>
             <activation>
-                <property>
-                    <name>native</name>
-                </property>
+                <activeByDefault>false</activeByDefault>
             </activation>
             <properties>
-                <quarkus.package.jar.enabled>false</quarkus.package.jar.enabled>
-                <skipITs>false</skipITs>
-                <quarkus.native.enabled>true</quarkus.native.enabled>
+                <quarkus.profile>cli</quarkus.profile>
             </properties>
         </profile>
     </profiles>
