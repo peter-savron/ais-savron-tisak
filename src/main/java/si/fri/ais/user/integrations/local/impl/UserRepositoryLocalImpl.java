@@ -1,22 +1,14 @@
 package si.fri.ais.user.integrations.local.impl;
 
 import com.arcadedb.database.Database;
-import com.arcadedb.database.Document;
 import com.arcadedb.database.MutableDocument;
 import com.arcadedb.query.sql.executor.ResultSet;
-import com.arcadedb.schema.DocumentType;
-import com.arcadedb.schema.Schema;
-import com.arcadedb.schema.Type;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import lombok.extern.jbosslog.JBossLog;
 import si.fri.ais.common.core.config.StorageConfig;
 import si.fri.ais.common.core.integration.local.arcadedb.ArcadeDbChangelogRepository;
-import si.fri.ais.common.core.integration.local.arcadedb.models.ArcadeDbChangelog;
-import si.fri.ais.common.core.integration.local.arcadedb.models.ArcadeDbVersion;
 import si.fri.ais.common.core.integration.local.arcadedb.scripts.CommonArcadeDbScripts;
-import si.fri.ais.common.core.models.NamedObject;
-import si.fri.ais.common.core.models.UnnamedObject;
 import si.fri.ais.user.core.models.User;
 import si.fri.ais.user.core.ports.incoming.UserRepository;
 import si.fri.ais.user.integrations.local.mappers.UserDocumentMapper;
@@ -26,6 +18,7 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -33,7 +26,6 @@ import java.util.UUID;
 import java.util.stream.Stream;
 
 import static si.fri.ais.user.integrations.local.values.UserArcadeDbValues.userDocumentType;
-import static si.fri.ais.user.integrations.local.values.UserArcadeDbValues.userSchemaChangelogs;
 
 @JBossLog
 @ApplicationScoped
@@ -59,6 +51,24 @@ public class UserRepositoryLocalImpl implements UserRepository {
     @PostConstruct
     private void init() {
         arcadeDbChangelogRepository.runChangelogs(UserArcadeDbValues.userSchemaChangelogs);
+    }
+
+    @Override
+    public List<User> getAll(int offset, int limit) {
+        if (offset < 0 || limit < 0) {
+            throw new IllegalArgumentException("Offset and limit must not be negative");
+        }
+        if (limit == 0) {
+            return List.of();
+        }
+        List<User> users = new ArrayList<>();
+        String query = "SELECT FROM %s ORDER BY name SKIP ? LIMIT ?".formatted(userDocumentType);
+        try (ResultSet results = database.query("sql", query, offset, limit)) {
+            while (results.hasNext()) {
+                results.next().getElement().map(userDocumentMapper::fromDocument).ifPresent(users::add);
+            }
+        }
+        return users;
     }
 
     @Override

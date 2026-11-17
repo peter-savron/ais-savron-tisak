@@ -21,5 +21,5 @@ public interface UserService {
 
     User createUser(@NotNull @Valid UserCreate create);
     // NOTE common update method will be added later when necessary
-    User deleteUser(@NotNull @Valid UserDelete delete);
+    void deleteUser(@NotNull @Valid UserDelete delete);
 }

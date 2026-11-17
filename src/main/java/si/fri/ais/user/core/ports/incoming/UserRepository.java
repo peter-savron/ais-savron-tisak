@@ -5,11 +5,13 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import si.fri.ais.user.core.models.User;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 public interface UserRepository {
-    // TODO getAll method (with pagination (which will be ignored by CLI)
+    /** Returns users ordered by name, starting at the zero-based offset. */
+    List<User> getAll(int offset, int limit);
     Optional<User> getUser(@NotNull UUID userId);
     Optional<User> getUser(@NotEmpty String userName);
     void createUser(@NotNull User user);

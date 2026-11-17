@@ -20,6 +20,7 @@
         <lombok.version>1.18.48</lombok.version>
         <arcadedb.version>26.11.1</arcadedb.version>
         <keyring.version>java-keyring-1.0.1</keyring.version>
+        <bcprov.version>1.87</bcprov.version>
 
         <surefire-plugin.version>3.5.6</surefire-plugin.version>
     </properties>
@@ -87,6 +88,12 @@
             <artifactId>quarkus-arc</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk18on</artifactId>
+            <version>${bcprov.version}</version>
+        </dependency>
+
         <!-- Persistence -->
         <dependency>
             <groupId>com.arcadedb</groupId>
@@ -99,6 +106,11 @@
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-junit-mockito</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
