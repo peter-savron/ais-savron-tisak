@@ -4,8 +4,8 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import si.fri.ais.user.core.models.User;
-import si.fri.ais.user.core.models.commmands.UserLogin;
-import si.fri.ais.user.core.models.commmands.UserPasswordUpdate;
+import si.fri.ais.user.core.models.commands.UserLogin;
+import si.fri.ais.user.core.models.commands.UserPasswordUpdate;
 
 /**
  * Methods related to User authentication.

@@ -4,8 +4,8 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import si.fri.ais.user.core.models.User;
-import si.fri.ais.user.core.models.commmands.UserCreate;
-import si.fri.ais.user.core.models.commmands.UserDelete;
+import si.fri.ais.user.core.models.commands.UserCreate;
+import si.fri.ais.user.core.models.commands.UserDelete;
 
 import java.util.List;
 import java.util.Optional;

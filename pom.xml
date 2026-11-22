@@ -18,10 +18,13 @@
 
         <quarkus.platform.version>3.40.1.1</quarkus.platform.version>
         <lombok.version>1.18.48</lombok.version>
+
+        <!-- CLI and local execution related dependencies -->
+        <jline.version>4.7.0</jline.version>
         <arcadedb.version>26.11.1</arcadedb.version>
-        <keyring.version>java-keyring-1.0.1</keyring.version>
         <bcprov.version>1.87</bcprov.version>
 
+        <!-- Testing -->
         <surefire-plugin.version>3.5.6</surefire-plugin.version>
     </properties>
 
@@ -72,10 +75,6 @@
             <artifactId>quarkus-qute</artifactId>
         </dependency>
         <dependency>
-            <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-picocli</artifactId>
-        </dependency>
-        <dependency>
             <groupId>io.quarkiverse.langchain4j</groupId>
             <artifactId>quarkus-langchain4j-core</artifactId>
         </dependency>
@@ -88,6 +87,9 @@
             <artifactId>quarkus-arc</artifactId>
         </dependency>
 
+        <!-- CLI -->
+
+        <!-- Crypto -->
         <dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcprov-jdk18on</artifactId>
@@ -180,6 +182,58 @@
             <properties>
                 <quarkus.profile>cli</quarkus.profile>
             </properties>
+            <dependencies>
+                <dependency>
+                    <groupId>io.quarkus</groupId>
+                    <artifactId>quarkus-picocli</artifactId>
+                </dependency>
+
+                <dependency>
+                    <groupId>org.jline</groupId>
+                    <artifactId>jline-terminal</artifactId>
+                    <version>${jline.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.jline</groupId>
+                    <artifactId>jline-terminal-jni</artifactId>
+                    <version>${jline.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.jline</groupId>
+                    <artifactId>jline-reader</artifactId>
+                    <version>${jline.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.jline</groupId>
+                    <artifactId>jline-prompt</artifactId>
+                    <version>${jline.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.jline</groupId>
+                    <artifactId>jline-style</artifactId>
+                    <version>${jline.version}</version>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
+            <id>cli-native</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <properties>
+                <quarkus.profile>cli</quarkus.profile>
+            </properties>
+            <dependencies>
+                <dependency>
+                    <groupId>io.quarkus</groupId>
+                    <artifactId>quarkus-picocli</artifactId>
+                </dependency>
+                <dependency>
+                    <groupId>org.jline</groupId>
+                    <artifactId>jline-graal</artifactId>
+                    <version>${jline.version}</version>
+                </dependency>
+            </dependencies>
         </profile>
     </profiles>
 </project>

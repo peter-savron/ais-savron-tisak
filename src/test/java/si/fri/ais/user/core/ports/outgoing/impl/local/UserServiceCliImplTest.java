@@ -6,8 +6,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import si.fri.ais.user.core.models.User;
-import si.fri.ais.user.core.models.commmands.UserCreate;
-import si.fri.ais.user.core.models.commmands.UserDelete;
+import si.fri.ais.user.core.models.commands.UserCreate;
+import si.fri.ais.user.core.models.commands.UserDelete;
 import si.fri.ais.user.core.ports.incoming.UserRepository;
 import si.fri.ais.user.core.ports.outgoing.UserAuthnService;
 

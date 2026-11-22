@@ -3,11 +3,10 @@ package si.fri.ais.user.core.ports.outgoing;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import si.fri.ais.user.core.models.User;
 import si.fri.ais.user.core.models.UserSecret;
-import si.fri.ais.user.core.models.commmands.UserSecretCreate;
-import si.fri.ais.user.core.models.commmands.UserSecretDelete;
-import si.fri.ais.user.core.models.commmands.UserSecretUpdate;
+import si.fri.ais.user.core.models.commands.UserSecretCreate;
+import si.fri.ais.user.core.models.commands.UserSecretDelete;
+import si.fri.ais.user.core.models.commands.UserSecretUpdate;
 
 import java.util.List;
 import java.util.Optional;

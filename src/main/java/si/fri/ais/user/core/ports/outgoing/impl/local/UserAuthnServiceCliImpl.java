@@ -5,8 +5,8 @@ import jakarta.enterprise.context.ApplicationScoped;
 import si.fri.ais.user.core.models.User;
 import si.fri.ais.user.core.ports.incoming.UserRepository;
 import si.fri.ais.user.core.ports.incoming.UserKeyRepository;
-import si.fri.ais.user.core.models.commmands.UserLogin;
-import si.fri.ais.user.core.models.commmands.UserPasswordUpdate;
+import si.fri.ais.user.core.models.commands.UserLogin;
+import si.fri.ais.user.core.models.commands.UserPasswordUpdate;
 import si.fri.ais.user.core.ports.outgoing.UserAuthnService;
 
 @IfBuildProfile("cli")
