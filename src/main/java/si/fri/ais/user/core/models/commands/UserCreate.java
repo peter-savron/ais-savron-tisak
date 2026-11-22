@@ -1,9 +1,10 @@
 package si.fri.ais.user.core.models.commands;
 
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.validator.constraints.Length;
 import si.fri.ais.common.core.utils.MainApplicationValues;
 
 @Getter
@@ -12,6 +13,7 @@ public class UserCreate {
     @NotEmpty
     private String name;
 
-    @Length(min = MainApplicationValues.MIN_PASSWORD_LENGTH + 1,  max = MainApplicationValues.MAX_PASSWORD_LENGTH + 1) // Include \0 sign at end.
+    @NotNull
+    @Size(min = MainApplicationValues.MIN_PASSWORD_LENGTH, max = MainApplicationValues.MAX_PASSWORD_LENGTH)
     private char[] password;
 }

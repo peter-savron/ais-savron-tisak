@@ -49,7 +49,7 @@ public class UserRepositoryLocalImpl implements UserRepository {
     }
 
     @PostConstruct
-    private void init() {
+    void init() {
         arcadeDbChangelogRepository.runChangelogs(UserArcadeDbValues.userSchemaChangelogs);
     }
 
@@ -126,10 +126,11 @@ public class UserRepositoryLocalImpl implements UserRepository {
 
     @Override
     public void removeUser(UUID userId) {
-        CommonArcadeDbScripts.deleteById(
+        database.transaction(() -> CommonArcadeDbScripts.deleteById(
                 database,
                 userDocumentType,
-                userId);
+                userId
+        ));
 
         Path userDir = storageConfig.dataPath().resolve(userId.toString());
         deleteDirectoryRecursively(userDir);

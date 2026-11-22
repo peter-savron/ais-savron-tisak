@@ -40,4 +40,6 @@ Use lombok's `@JBossLog` for all logging, it is configured to generate a `log` n
 
 ## Self-improvement
 
-You are authorized to update `SKILLS.md` and `AGENT.md` file if it is deemed appropriate. It means that the Master has specified a new rule that applies to any skill execution or a very important common rule. Always inform the Master so they can congratulate you.
+You are authorized to update `SKILL.md` and `AGENTS.md` files if it is deemed appropriate. It means that the Master has specified a new rule that applies to any skill execution or a very important common rule. Always inform the Master so they can congratulate you.
+
+When creating or updating a skill, write guidance that applies across features wherever the skill is relevant. Generalize lessons from individual fixes and document feature-specific behavior in the relevant feature documentation.

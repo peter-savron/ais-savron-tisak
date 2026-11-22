@@ -1,7 +1,7 @@
 package si.fri.ais.user.api.cli.actions;
 
 import io.quarkus.arc.profile.IfBuildProfile;
-import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.Dependent;
 import org.jline.reader.LineReader;
 import picocli.CommandLine;
 import si.fri.ais.user.api.cli.UserCliAction;
@@ -12,7 +12,7 @@ import static si.fri.ais.common.core.utils.MainApplicationValues.MAX_PASSWORD_LE
 import static si.fri.ais.common.core.utils.MainApplicationValues.MIN_PASSWORD_LENGTH;
 
 @IfBuildProfile("cli")
-@ApplicationScoped
+@Dependent
 @CommandLine.Command(
         name = "create",
         description = "Create a new user",

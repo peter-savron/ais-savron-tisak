@@ -27,7 +27,7 @@ public class ArcadeDbProvider {
     }
 
     @PostConstruct
-    private void init() {
+    void init() {
         try {
             Path arcadeDbDir = storageConfig.dataPath().resolve(".arcadedb");
             Files.createDirectories(arcadeDbDir);

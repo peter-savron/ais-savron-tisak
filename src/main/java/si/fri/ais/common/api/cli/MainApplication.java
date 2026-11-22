@@ -23,9 +23,9 @@ public class MainApplication implements QuarkusApplication {
     @Override
     public int run(String... args) {
         // Setup command line
-        CommandLine cmd = new CommandLine(mainCommand, factory)
-                .setExecutionExceptionHandler(exceptionMapperResolver);
-        cliFeatures.forEach(cmd::addSubcommand);
+        CommandLine cmd = new CommandLine(mainCommand, factory);
+        cliFeatures.forEach(feature -> cmd.addSubcommand(new CommandLine(feature, factory)));
+        cmd.setExecutionExceptionHandler(exceptionMapperResolver);
 
         return cmd.execute(args);
     }

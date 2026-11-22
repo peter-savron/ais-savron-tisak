@@ -17,7 +17,7 @@ mvn clean package
 Then you can run the CLI via commands (use `--help` for mora info):
 
 ```shell
-java -jar target/quarkus-app/quarkus-run.jar bistra --help
+java -jar target/quarkus-app/quarkus-run.jar --help
 ```
 
 ## Native image

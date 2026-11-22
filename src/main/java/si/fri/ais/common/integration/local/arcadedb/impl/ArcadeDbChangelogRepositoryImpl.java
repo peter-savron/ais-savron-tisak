@@ -45,7 +45,7 @@ public class ArcadeDbChangelogRepositoryImpl implements ArcadeDbChangelogReposit
     }
 
     @PostConstruct
-    private void initialize() {
+    void initialize() {
         // TODO clean at start option
 
         // Initialize DB schema
@@ -202,7 +202,7 @@ public class ArcadeDbChangelogRepositoryImpl implements ArcadeDbChangelogReposit
                 success
         );
 
-        saveOrUpdateExecutionRecord(execution, replaceExisting);
+        database.transaction(() -> saveOrUpdateExecutionRecord(execution, replaceExisting));
 
         failure.ifPresent(e -> {throw  e;});
     }
