@@ -2,7 +2,8 @@
 
 ## Fields
 
-- `name` should be unique
+- `name` must be unique and contain at most 64 characters. It starts with an ASCII letter, followed by zero or more ASCII letters, digits, underscores, or hyphens.
+- `password` is stored only as a hash. It must contain 8 to 128 characters drawn from ASCII letters, digits, and punctuation. These characters are allowed in any position. Whitespace, control characters, and non-ASCII characters are rejected.
 - `context` brief info (20 words) about the user (if the user has more roles, you could also assign a current role to the user - this is optional and should be applied in a later phase)
 - `config` various user-wide configurations
   - `preview-changes` ask for confirmation before running commands

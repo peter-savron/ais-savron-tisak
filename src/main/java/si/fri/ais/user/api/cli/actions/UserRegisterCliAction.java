@@ -2,14 +2,14 @@ package si.fri.ais.user.api.cli.actions;
 
 import io.quarkus.arc.profile.IfBuildProfile;
 import jakarta.enterprise.context.Dependent;
-import org.jline.reader.LineReader;
 import picocli.CommandLine;
 import si.fri.ais.user.api.cli.UserCliAction;
 import si.fri.ais.user.core.models.commands.UserCreate;
 import si.fri.ais.user.core.ports.outgoing.UserService;
 
-import static si.fri.ais.common.core.utils.MainApplicationValues.MAX_PASSWORD_LENGTH;
-import static si.fri.ais.common.core.utils.MainApplicationValues.MIN_PASSWORD_LENGTH;
+import java.util.Arrays;
+
+import static java.util.Optional.ofNullable;
 
 @IfBuildProfile("cli")
 @Dependent
@@ -20,49 +20,34 @@ import static si.fri.ais.common.core.utils.MainApplicationValues.MIN_PASSWORD_LE
 )
 public class UserRegisterCliAction implements UserCliAction {
 
-    private final LineReader lineReader;
+    private final UserPasswordCliResolver passwordResolver;
     private final UserService userService;
+    private final UserNameResolver userNameResolver;
 
-    @CommandLine.Option(names = {"-n", "--name"}, required = true, description = "New user's name")
+    @CommandLine.Option(names = {"-n", "--name"}, description = "New user's name (prompts if omitted)")
     String name;
 
-    @CommandLine.Option(names = {"-p", "--password"}, arity = "0..1", description = "Password")
+    @CommandLine.Option(names = {"-p", "--password"}, description = "Password (prompts if omitted)")
     char[] password;
 
-    public UserRegisterCliAction(LineReader lineReader, UserService userService) {
-        this.lineReader = lineReader;
+    public UserRegisterCliAction(UserPasswordCliResolver passwordResolver, UserService userService, UserNameResolver userNameResolver) {
+        this.passwordResolver = passwordResolver;
         this.userService = userService;
+        this.userNameResolver = userNameResolver;
     }
 
     @Override
     public void run() {
-        lineReader.setVariable(LineReader.DISABLE_HISTORY, Boolean.TRUE);
-        String password;
-
         try {
-            while (true) {
-                String input = lineReader.readLine("Insert user password:", '*');
-
-                if (input.length() < MIN_PASSWORD_LENGTH) {
-                    lineReader.printAbove("Password is shorter then minimum length of %d characters. Try again.%n".formatted(MIN_PASSWORD_LENGTH));
-                    continue;
-                }
-
-                if (input.length() > MAX_PASSWORD_LENGTH) {
-                    lineReader.printAbove("Password exceeds maximum length of %d characters. Try again.%n".formatted(MAX_PASSWORD_LENGTH));
-                    continue;
-                }
-
-                password = input;
-                break;
-            }
+            String userName = userNameResolver.readUserName(name);
+            password = passwordResolver.readPassword(password);
+            userService.createUser(UserCreate.builder()
+                    .name(userName)
+                    .password(password)
+                    .build());
         } finally {
-            lineReader.getTerminal().flush();
-            lineReader.setVariable(LineReader.DISABLE_HISTORY, Boolean.FALSE);
+            ofNullable(password).ifPresent(value -> Arrays.fill(value, '\0'));
+            password = null;
         }
-        userService.createUser(UserCreate.builder()
-                .name(name)
-                .password(password.toCharArray())
-                .build());
     }
 }

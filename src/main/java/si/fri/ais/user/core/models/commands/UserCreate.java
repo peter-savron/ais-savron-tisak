@@ -2,10 +2,9 @@ package si.fri.ais.user.core.models.commands;
 
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
-import si.fri.ais.common.core.utils.MainApplicationValues;
+import si.fri.ais.user.core.models.validation.ValidUserPassword;
 
 @Getter
 @SuperBuilder
@@ -14,6 +13,6 @@ public class UserCreate {
     private String name;
 
     @NotNull
-    @Size(min = MainApplicationValues.MIN_PASSWORD_LENGTH, max = MainApplicationValues.MAX_PASSWORD_LENGTH)
+    @ValidUserPassword
     private char[] password;
 }

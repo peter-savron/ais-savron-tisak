@@ -2,6 +2,7 @@ package si.fri.ais.user.core.ports.outgoing.impl.local;
 
 import io.quarkus.arc.profile.IfBuildProfile;
 import jakarta.enterprise.context.ApplicationScoped;
+import si.fri.ais.user.core.exceptions.UserException;
 import si.fri.ais.user.core.models.User;
 import si.fri.ais.user.core.models.commands.UserCreate;
 import si.fri.ais.user.core.models.commands.UserDelete;
@@ -14,6 +15,8 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
+
+import static si.fri.ais.user.core.exceptions.UserException.Code.USER_CREATE_NAME_NOT_UNIQUE;
 
 @IfBuildProfile("cli")
 @ApplicationScoped
@@ -45,7 +48,7 @@ public class UserServiceCliImpl implements UserService {
     @Override
     public User createUser(UserCreate create) {
         if (userRepository.getUser(create.getName()).isPresent()) {
-            throw new IllegalArgumentException("User already exists: " + create.getName());
+            throw new UserException(USER_CREATE_NAME_NOT_UNIQUE);
         }
         byte[] keySalt = new byte[32];
         random.nextBytes(keySalt);

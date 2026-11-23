@@ -51,13 +51,19 @@ Declare Picocli options directly on the concrete action. Use an action-local `@A
 
 Resolve explicit selectors first, then use the current session where applicable. Keep a flag optional when session context or an interactive prompt can supply its value. When an action requires an explicit selector, accept it through the option or prompt and skip session defaults. Resolve and validate the selector before prompting for a password or calling the core service.
 
+### CLI option resolvers
+
+Use a feature-level resolver when actions share option validation, session fallback, or prompting. Make the resolver an `@ApplicationScoped` CDI bean. Constructor-inject the `LineReader`, prompts, and other dependencies it needs. Actions inject the resolver and pass option values to it. Keep per-invocation values local to each call and declare Picocli options on the actions.
+
 ### Prompt user
 
 You specify a user prompt when he needs to specify a secret or to pass a long text or make a guided selection. Use JLine 4 for prompts.
 
 Store reusable CLI prompts in `si.fri.ais.common.api.cli.prompts`. Add a separate class for each distinct reusable prompt and keep feature-specific decisions in the action that calls it.
 
-Use `LinePrompt` for unmasked text. Supply a validation consumer and an exception-to-message mapper when needed. Keep validation failures separate from EOF and cancellation so those can reach the CLI exception mapper.
+Make reusable prompts that own a JLine dependency `@ApplicationScoped` CDI beans. Constructor-inject the `LineReader` into `PasswordPrompt` and inject the prompt into each action that uses it. Keep input and validation state local to each call.
+
+Use `LinePrompt` for unmasked text. Apply feature-specific validation and retries at the call site. Let EOF and cancellation reach the CLI exception mapper.
 
 Use the injected JLine 4 input component that matches the feature's existing prompt pattern. For a single masked password, follow the registration action. Inject the project's `org.jline.reader.LineReader` and call `readLine(message, '*')`. Disable history while reading credentials, restore the previous setting in `finally`, and flush the terminal. Use the `jline-prompt` builders for commands designed around a structured prompt flow.
 
@@ -65,7 +71,7 @@ For new actions that accept a password option, prompt only when no value was pro
 
 ### Exception handling
 
-First you should have a feature specific exception mapper to use in catch blocks, if it does not recognize the exception it should be forwarded to the common exception mapper. Exceptions should be displayed to the User in a friendly textual way, stacktraces should not escape to the terminal, but be only stored in file logs.
+Default to one `CliExceptionMapper` per exception type. A mapper may translate multiple enum codes carried by its exception type. Put feature-specific mappers in the feature's CLI package and shared CLI mappers in the common CLI package. Let the shared resolver dispatch exceptions and use the fallback mapper for unrecognized types. Print friendly messages to the terminal and keep stack traces in file logs.
 
 ### Calling core services
 
