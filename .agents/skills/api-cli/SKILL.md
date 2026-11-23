@@ -1,6 +1,6 @@
 ---
 name: api-cli
-description: Info how to build a scalable cli interface. 
+description: Implement or refactor this project's Quarkus CLI actions with Picocli options, session defaults, and JLine 4 prompts.
 ---
 
 # CLI API
@@ -39,15 +39,29 @@ public class MainApplication implements QuarkusApplication {
 }
 ```
 
-Similarily each feature has some actions, implement in action separating implementing `FeatureCliAction` inteface where `Feature` in this name should be replaced by the actual feature name like `UserCliAction`.
+Similarly each feature has some actions, implement in action separating implementing `FeatureCliAction` interface where `Feature` in this name should be replaced by the actual feature name like `UserCliAction`.
+
+Read the existing actions for the feature before adding another. Follow their command structure, constructor injection, and terminal conventions. Keep reference actions intact unless the task calls for changing them. Each concrete action implements its feature action interface directly and owns its `run()` method.
 
 ### Command parameters
 
-Command parameters are defined via the use of `quarkus-picocli` invocations.
+Command parameters are defined via the use of `quarkus-picocli` `@Command.Option`.
+
+Declare Picocli options directly on the concrete action. Use an action-local `@ArgGroup` for mutually exclusive selectors. Avoid `@CommandLine.Mixin` and inherited option declarations for sharing command flags.
+
+Resolve explicit selectors first, then use the current session where applicable. Keep a flag optional when session context or an interactive prompt can supply its value. When an action requires an explicit selector, accept it through the option or prompt and skip session defaults. Resolve and validate the selector before prompting for a password or calling the core service.
 
 ### Prompt user
 
-TODO sometimes you would like the user to specify some commands later
+You specify a user prompt when he needs to specify a secret or to pass a long text or make a guided selection. Use JLine 4 for prompts.
+
+Store reusable CLI prompts in `si.fri.ais.common.api.cli.prompts`. Add a separate class for each distinct reusable prompt and keep feature-specific decisions in the action that calls it.
+
+Use `LinePrompt` for unmasked text. Supply a validation consumer and an exception-to-message mapper when needed. Keep validation failures separate from EOF and cancellation so those can reach the CLI exception mapper.
+
+Use the injected JLine 4 input component that matches the feature's existing prompt pattern. For a single masked password, follow the registration action. Inject the project's `org.jline.reader.LineReader` and call `readLine(message, '*')`. Disable history while reading credentials, restore the previous setting in `finally`, and flush the terminal. Use the `jline-prompt` builders for commands designed around a structured prompt flow.
+
+For new actions that accept a password option, prompt only when no value was provided. Validate supplied and prompted values against the operation's requirements. Retry invalid interactive input, route cancellation and EOF through the CLI exception mapper, and clear mutable password buffers after use. Verify interactive behavior through the packaged CLI in a terminal.
 
 ### Exception handling
 

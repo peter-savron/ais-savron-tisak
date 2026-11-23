@@ -36,6 +36,8 @@ Key technologies used are Java 21 and Maven 3.9. If you think a dependency is mi
 
 Prefer fluent java APIs over code blocks. Use `Optional.ofNullable` for null checks and `Collection.stream` for iteration through lists when applicable.
 
+Keep simple one-line checks and calls at the call site. Avoid extracting them into boilerplate helper methods.
+
 Use lombok's `@JBossLog` for all logging, it is configured to generate a `log` named logger.
 
 ## Self-improvement
