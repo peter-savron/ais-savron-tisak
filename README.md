@@ -11,7 +11,7 @@ Must yet be defined
 First you must package the app:
 
 ```shell
-mvn clean package
+mvn clean package -Pcli
 ```
 
 Then you can run the CLI via commands (use `--help` for mora info):

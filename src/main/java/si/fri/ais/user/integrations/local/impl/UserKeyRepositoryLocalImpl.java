@@ -20,13 +20,7 @@ public class UserKeyRepositoryLocalImpl implements UserKeyRepository {
     private final Path userKeysDir;
 
     public UserKeyRepositoryLocalImpl(StorageConfig storageConfig) {
-        try {
-            this.userKeysDir = storageConfig.cachePath().resolve(".user-keys");
-            Files.createDirectories(this.userKeysDir);
-        } catch (Exception e) {
-            log.error("Could not initialize UserKeys folder.", e);
-            throw new RuntimeException(e);
-        }
+        this.userKeysDir = storageConfig.cachePath().resolve(".user-keys").normalize();
     }
 
     @Override
@@ -48,6 +42,7 @@ public class UserKeyRepositoryLocalImpl implements UserKeyRepository {
         Path keyFile = resolveUserKeyPath(userName);
         userKey.useKey(key -> {
             try {
+                Files.createDirectories(userKeysDir);
                 Files.write(
                         keyFile,
                         key,
