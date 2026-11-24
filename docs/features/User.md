@@ -49,7 +49,7 @@ After the key is stored successfully, set `logged` to true.
 ### Logout
 
 Clear `logged` and remove the stored user key.
-Removes all user-session configuration.
+Remove all terminal [sessions](Session.md#lifecycle) whose stored user is the user logging out. Named sessions and the global slot retain their preferences and continue to expire normally. Login makes a retained, unexpired session eligible for use again.
 If a user is logged out, there is no possibility to decode his secrets.
 
 ### Update
