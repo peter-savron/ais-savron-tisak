@@ -11,6 +11,7 @@ public class SessionException extends IllegalStateException {
         NAMED_SESSION_MISSING,
         USER_MISSING,
         LOGIN_REQUIRED,
+        WORKSPACE_UNAVAILABLE,
         PREFERENCES_UNCHANGED,
         CONCURRENT_CHANGE
     }

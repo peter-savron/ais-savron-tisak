@@ -25,6 +25,10 @@ All write methods in repository should return `void`, query operations should re
 
 ## Core implementations
 
+Single-record lookups exposed to other features should return `Optional` when a record may be absent. When an operation requires the record, the calling feature should use `orElseThrow` with its own exception.
+
 Implementations of `{interfaceName}` should follow the naming patter `{interfaceName}{optional:implementationKind}Impl`.
 
 You should always update models in place and never create models copies.
+
+You may call another feature Service in the implementation if it is required, but you should never throw exceptions related to another feature inside the core logic for your own feature. All core feature rules should be encompassed in the core feature implementation.

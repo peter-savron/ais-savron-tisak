@@ -57,7 +57,8 @@ public class SessionServiceImpl implements SessionService {
     public Session start(SessionStart command) {
         requireUser(command.getUserId(), false);
         UUID workspaceId = command.getWorkspaceId();
-        Optional.ofNullable(workspaceId).ifPresent(workspace::getWorkspace);
+        Optional.ofNullable(workspaceId).ifPresent(id -> workspace.getWorkspace(id)
+                .orElseThrow(() -> new SessionException(WORKSPACE_UNAVAILABLE, id.toString())));
         SessionSlot slot = command.getSlot();
         Session session = Session.builder()
                 .slot(slot)
@@ -83,7 +84,8 @@ public class SessionServiceImpl implements SessionService {
         UUID userId = Optional.ofNullable(command.getUserId()).orElse(session.getUserId());
         UUID workspaceId = Optional.ofNullable(command.getWorkspaceId()).orElse(session.getWorkspaceId());
         requireUser(userId, false);
-        Optional.ofNullable(workspaceId).ifPresent(workspace::getWorkspace);
+        Optional.ofNullable(workspaceId).ifPresent(id -> workspace.getWorkspace(id)
+                .orElseThrow(() -> new SessionException(WORKSPACE_UNAVAILABLE, id.toString())));
 
         session.setUserId(userId);
         session.setWorkspaceId(workspaceId);
