@@ -31,6 +31,25 @@ public interface UserArcadeDbValues {
                         userType.getOrCreateTypeIndex(Schema.INDEX_TYPE.LSM_TREE, true, NamedObject.Fields.name);
                     },
                     false
+            ),
+            new ArcadeDbChangelog(
+                    changelogPartition,
+                    new ArcadeDbVersion(1, 1, 0, null),
+                    "add-user-logged",
+                    "Adds the User login flag and initializes existing users as logged out",
+                    db -> {
+                        db.getSchema().getType(userDocumentType).getOrCreateProperty(User.Fields.logged, Type.BOOLEAN);
+                        String update = "UPDATE %s SET %s = false WHERE %s IS NULL"
+                                .formatted(userDocumentType, User.Fields.logged, User.Fields.logged);
+                        db.transaction(() -> {
+                            try (var results = db.command("sql", update)) {
+                                while (results.hasNext()) {
+                                    results.next();
+                                }
+                            }
+                        });
+                    },
+                    false
             )
     );
 }

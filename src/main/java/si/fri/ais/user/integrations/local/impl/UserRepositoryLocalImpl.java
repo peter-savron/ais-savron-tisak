@@ -119,7 +119,7 @@ public class UserRepositoryLocalImpl implements UserRepository {
                         database,
                         userDocumentType,
                         user.getId(),
-                        doc -> userDocumentMapper.toDocument(user, doc)
+                        doc -> userDocumentMapper.updateDocument(user, doc)
                 )
         );
     }

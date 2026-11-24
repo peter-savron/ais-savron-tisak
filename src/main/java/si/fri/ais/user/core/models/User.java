@@ -15,4 +15,5 @@ import si.fri.ais.common.core.models.NamedObject;
 public class User extends NamedObject {
     @NotNull private String passwordHash;
     @NotEmpty private byte[] keySalt;
+    private boolean logged;
 }

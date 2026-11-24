@@ -23,14 +23,20 @@ public class UserDocumentMapper {
                 .name(doc.getString(NamedObject.Fields.name))
                 .passwordHash(doc.getString(User.Fields.passwordHash))
                 .keySalt(doc.getBinary(User.Fields.keySalt))
+                .logged(Boolean.TRUE.equals(doc.getBoolean(User.Fields.logged)))
                 .build();
     }
 
     public MutableDocument toDocument(@NotNull User user, @NotNull MutableDocument doc) {
         doc.set(UnnamedObject.Fields.id, user.getId().toString());
+        updateDocument(user, doc);
+        return doc;
+    }
+
+    public void updateDocument(@NotNull User user, @NotNull MutableDocument doc) {
         doc.set(NamedObject.Fields.name, user.getName());
         doc.set(User.Fields.passwordHash, user.getPasswordHash());
         doc.set(User.Fields.keySalt, user.getKeySalt());
-        return doc;
+        doc.set(User.Fields.logged, user.isLogged());
     }
 }

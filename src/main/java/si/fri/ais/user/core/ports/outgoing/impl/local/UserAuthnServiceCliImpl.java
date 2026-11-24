@@ -30,11 +30,17 @@ public class UserAuthnServiceCliImpl implements UserAuthnService {
         try (var key = UserPasswordHash.deriveKey(userLogin.getPassword(), user.getKeySalt())) {
             keyRepository.storeKey(user.getName(), key);
         }
+        user.setLogged(true);
+        userRepository.updateUser(user);
     }
 
     @Override
     public void logout(String userName) {
-        // TODO sesion tracking will be implemented later
+        userRepository.getUser(userName)
+                .ifPresent(user -> {
+                    user.setLogged(false);
+                    userRepository.updateUser(user);
+                });
         keyRepository.removeKey(userName);
     }
 

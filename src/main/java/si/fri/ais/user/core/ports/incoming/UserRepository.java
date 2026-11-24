@@ -15,6 +15,7 @@ public interface UserRepository {
     Optional<User> getUser(@NotNull UUID userId);
     Optional<User> getUser(@NotEmpty String userName);
     void createUser(@NotNull User user);
+    /** Updates the mutable fields of the user identified by its ID. */
     void updateUser(@NotNull @Valid User user);
     void removeUser(@NotNull UUID userId);
 }

@@ -23,6 +23,8 @@ public class UserListCliAction implements UserCliAction {
     @Override
     public void run() {
         var out = spec.commandLine().getOut();
-        service.list().forEach(user -> out.printf("- %s %s%n", user.getId(), user.getName()));
+        var ansi = spec.commandLine().getColorScheme().ansi();
+        service.list().forEach(user -> out.printf("- %s%s%n",
+                user.getName(), user.isLogged() ? ansi.string(" @|green LOGGED|@") : ""));
     }
 }
