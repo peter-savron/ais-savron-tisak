@@ -6,18 +6,20 @@ Repozitorij za zadeve vezane na AIS-DT projekt za študijsko leto 2026/2027
 
 Must yet be defined
 
-## Usage
+## Build the CLI
 
-First you must package the app:
+Install JDK 21 and Maven 3.9. From the repository root, build the CLI and the modules it depends on.
 
 ```shell
-mvn clean package -Pcli
+mvn -pl api-cli -am clean package
 ```
 
-Then you can run the CLI via commands (use `--help` for mora info):
+## Run the CLI
+
+The build puts the application in `api-cli/target/quarkus-app/`. Keep that directory together if you move or distribute the application. To see the available commands, run the following from the repository root.
 
 ```shell
-java -jar target/quarkus-app/quarkus-run.jar --help
+java -jar api-cli/target/quarkus-app/quarkus-run.jar --help
 ```
 
 ## Native image

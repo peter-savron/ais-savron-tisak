@@ -26,7 +26,7 @@ replay_pid*
 # Idea files
 /.idea/
 
-/target
+target/
 
 # Folders for temporary data
 /log

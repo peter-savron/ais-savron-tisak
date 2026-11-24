@@ -2,32 +2,24 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>si.fri.ais</groupId>
-    <artifactId>coding-agent</artifactId>
+    <artifactId>coding-agent-parent</artifactId>
     <version>1.0.0-SNAPSHOT</version>
-    <packaging>quarkus</packaging>
-
+    <packaging>pom</packaging>
     <properties>
         <compiler-plugin.version>3.15.0</compiler-plugin.version>
         <maven.compiler.release>21</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <skipITs>true</skipITs>
-
         <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
         <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
-
         <quarkus.platform.version>3.40.1.1</quarkus.platform.version>
         <lombok.version>1.18.48</lombok.version>
-
-        <!-- CLI and local execution related dependencies -->
         <jline.version>4.7.0</jline.version>
         <arcadedb.version>26.11.1</arcadedb.version>
         <bcprov.version>1.87</bcprov.version>
-
-        <!-- Testing -->
         <surefire-plugin.version>3.5.6</surefire-plugin.version>
     </properties>
-
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -38,93 +30,54 @@
                 <scope>import</scope>
             </dependency>
             <dependency>
-                <groupId>${quarkus.platform.group-id}</groupId>
-                <artifactId>quarkus-langchain4j-bom</artifactId>
-                <version>${quarkus.platform.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcprov-jdk18on</artifactId>
+                <version>${bcprov.version}</version>
             </dependency>
             <dependency>
-                <groupId>${quarkus.platform.group-id}</groupId>
-                <artifactId>quarkus-mcp-server-bom</artifactId>
-                <version>${quarkus.platform.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
+                <groupId>com.arcadedb</groupId>
+                <artifactId>arcadedb-engine</artifactId>
+                <version>${arcadedb.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jline</groupId>
+                <artifactId>jline-graal</artifactId>
+                <version>${jline.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jline</groupId>
+                <artifactId>jline-reader</artifactId>
+                <version>${jline.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jline</groupId>
+                <artifactId>jline-terminal</artifactId>
+                <version>${jline.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jline</groupId>
+                <artifactId>jline-terminal-jni</artifactId>
+                <version>${jline.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>${lombok.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>si.fri.ais</groupId>
+                <artifactId>core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>si.fri.ais</groupId>
+                <artifactId>integration-arcadedb</artifactId>
+                <version>${project.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
-
-    <dependencies>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>${lombok.version}</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-rest-client-jackson</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-hibernate-validator</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-qute</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.quarkiverse.langchain4j</groupId>
-            <artifactId>quarkus-langchain4j-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.quarkiverse.mcp</groupId>
-            <artifactId>quarkus-mcp-server-cli-adapter</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-arc</artifactId>
-        </dependency>
-
-        <!-- CLI -->
-
-        <!-- Crypto -->
-        <dependency>
-            <groupId>org.bouncycastle</groupId>
-            <artifactId>bcprov-jdk18on</artifactId>
-            <version>${bcprov.version}</version>
-        </dependency>
-
-        <!-- Persistence -->
-        <dependency>
-            <groupId>com.arcadedb</groupId>
-            <artifactId>arcadedb-engine</artifactId>
-            <version>${arcadedb.version}</version>
-            <scope>compile</scope>
-        </dependency>
-
-        <!-- Testing classes -->
-        <dependency>
-            <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-junit</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-junit-mockito</artifactId>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
-
     <build>
         <plugins>
-            <plugin>
-                <groupId>${quarkus.platform.group-id}</groupId>
-                <artifactId>quarkus-maven-plugin</artifactId>
-                <version>${quarkus.platform.version}</version>
-                <extensions>true</extensions>
-            </plugin>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>${compiler-plugin.version}</version>
@@ -136,7 +89,6 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${surefire-plugin.version}</version>
                 <configuration>
-                    <argLine>@{argLine}</argLine>
                     <systemPropertyVariables>
                         <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
                         <maven.home>${maven.home}</maven.home>
@@ -155,7 +107,6 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <argLine>@{argLine}</argLine>
                     <systemPropertyVariables>
                         <native.image.path>${project.build.directory}/${project.build.finalName}-runner</native.image.path>
                         <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
@@ -164,76 +115,10 @@
                 </configuration>
             </plugin>
         </plugins>
-
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-                <filtering>true</filtering>
-            </resource>
-        </resources>
     </build>
-
-    <profiles>
-        <profile>
-            <id>cli</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-            </activation>
-            <properties>
-                <quarkus.profile>cli</quarkus.profile>
-            </properties>
-            <dependencies>
-                <dependency>
-                    <groupId>io.quarkus</groupId>
-                    <artifactId>quarkus-picocli</artifactId>
-                </dependency>
-
-                <dependency>
-                    <groupId>org.jline</groupId>
-                    <artifactId>jline-terminal</artifactId>
-                    <version>${jline.version}</version>
-                </dependency>
-                <dependency>
-                    <groupId>org.jline</groupId>
-                    <artifactId>jline-terminal-jni</artifactId>
-                    <version>${jline.version}</version>
-                </dependency>
-                <dependency>
-                    <groupId>org.jline</groupId>
-                    <artifactId>jline-reader</artifactId>
-                    <version>${jline.version}</version>
-                </dependency>
-                <dependency>
-                    <groupId>org.jline</groupId>
-                    <artifactId>jline-prompt</artifactId>
-                    <version>${jline.version}</version>
-                </dependency>
-                <dependency>
-                    <groupId>org.jline</groupId>
-                    <artifactId>jline-style</artifactId>
-                    <version>${jline.version}</version>
-                </dependency>
-            </dependencies>
-        </profile>
-        <profile>
-            <id>cli-native</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-            </activation>
-            <properties>
-                <quarkus.profile>cli</quarkus.profile>
-            </properties>
-            <dependencies>
-                <dependency>
-                    <groupId>io.quarkus</groupId>
-                    <artifactId>quarkus-picocli</artifactId>
-                </dependency>
-                <dependency>
-                    <groupId>org.jline</groupId>
-                    <artifactId>jline-graal</artifactId>
-                    <version>${jline.version}</version>
-                </dependency>
-            </dependencies>
-        </profile>
-    </profiles>
+    <modules>
+        <module>core</module>
+        <module>integration-arcadedb</module>
+        <module>api-cli</module>
+    </modules>
 </project>

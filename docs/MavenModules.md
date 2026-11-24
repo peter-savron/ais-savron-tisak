@@ -1,0 +1,23 @@
+# Maven module migration plan
+
+Build the local CLI as the single Quarkus application. Its runtime needs both user services and embedded ArcadeDB. The split gives each dependency an owner. Package savings come from removing unused runtime dependencies and their transitive dependencies from the application graph.
+
+## Target reactor
+
+| Module | Packaging | Responsibilities and dependencies |
+| --- | --- | --- |
+| Root | pom | Aggregate the three children. Manage Java 21, platform BOM, library versions and plugin versions centrally. Keep application dependencies out of the parent's inherited dependencies. |
+| core | jar | Own common and user models, validation, ports, services and password hashing. Declare Bouncy Castle for Argon2 and the CDI, validation, logging and configuration APIs used by these classes.  |
+| integration-arcadedb | jar | Depend on core. Own common ArcadeDB lifecycle, producers and changelog scripts plus user repository implementations, mappers and values. Declare the engine and Jackson annotations used by persistence models directly. |
+| api-cli | quarkus | Depend on core at compile time and integration-arcadedb at runtime for CDI wiring. Own CLI commands, prompts, exception mappers, terminal providers, CLI file logging and application configuration. Declare Picocli, the required JLine components, ArC and the Hibernate Validator extension here. |
+
+Keep Java package names through the move. In particular, the two user service implementations with `CliImpl` names implement business operations and can stay with their ports. The CLI logging implementation belongs with the executable even though its current package contains `integration.local`. See the [user feature](features/User.md), [CLI contract](api/cli/User.md) and [ArcadeDB session design](integrations/arcadedb/Session.md).
+
+## Migration sequence
+
+1. **Capture the baseline.** With Java 21 and Maven 3.9, run `mvn clean verify` and `mvn dependency:tree -Dscope=runtime`. Save the tree, sorted JAR names under `target/quarkus-app/lib`, and byte size of the entire `target/quarkus-app` directory outside the build tree. Record any existing failures separately.
+2. **Create the reactor.** Give the parent a distinct artifact ID so the executable can retain `si.fri.ais:coding-agent` under the `api-cli` directory. Move sources and their unit tests to their owning modules. Keep tests that boot the whole application with the executable. Scope Lombok as provided and test dependencies as test wherever needed. Activate the Quarkus packaging plugin only in the executable. Index both library JARs with the Jandex Maven plugin so augmentation discovers services, repository beans and producers. [Quarkus multi-module builds](https://quarkus.io/guides/maven-tooling/#working-with-multi-module-projects)
+3. **Preserve deployment behavior.** Keep the application version, storage paths and log settings in the executable’s application properties. Build the CLI by selecting the executable module. Let the Maven `native` property select the matching JLine terminal provider.
+4. **Prune the executable graph.** Start with the REST client Jackson, Qute, LangChain4j core and MCP CLI adapter extensions currently declared in the root. For each, check configuration, generated entry points and runtime behavior as well as Java imports, remove the unused declaration, then rebuild. If it supplied a required API transitively, declare that API in the consuming module. Check JLine prompt, style and JNI separately with an interactive terminal. Remove the LangChain4j and MCP BOM imports once their managed dependencies are gone. BOM cleanup alone saves no runtime bytes.
+5. **Verify from a clean checkout.** Run `mvn -pl api-cli -am clean verify` and capture `mvn -pl api-cli -am dependency:tree -Dscope=runtime`. Verify core has no CLI or database dependency and the persistence module has no CLI dependency. Compare the baseline inventory and size with `api-cli/target/quarkus-app`. Trace any supposedly removed JAR still present back to its introducing dependency. Record removed artifacts and the measured byte delta.
+6. **Exercise the delivered package.** Launch `java -jar api-cli/target/quarkus-app/quarkus-run.jar` against disposable storage. Check help, interactive prompts, invalid input, registration, login, and retrieval after restart. Verify schema initialization and file logging. Repeat the smoke checks on a native executable built with `mvn -Dnative -pl api-cli -am clean package`. Update launch and distribution paths to ship the whole fast-JAR directory once these checks pass.
