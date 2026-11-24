@@ -55,6 +55,8 @@ public class SessionCliPrinter {
         }
         out.printf("%slastAccessedAt: %s%n", indent, session.getLastAccessedAt());
         out.printf("%sexpiresAt: %s%n", indent, session.getExpiresAt());
-        out.printf("%susesSession: %s%n", indent, session.getUsesSession() == null ? "unset" : session.getUsesSession());
+        if (session.getUsesSession() != null) {
+            out.printf("%susesSession: %s%n", indent, session.getUsesSession());
+        }
     }
 }

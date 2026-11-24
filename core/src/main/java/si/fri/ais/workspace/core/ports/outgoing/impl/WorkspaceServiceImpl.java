@@ -10,14 +10,15 @@ import java.util.UUID;
 
 @ApplicationScoped
 public class WorkspaceServiceImpl implements WorkspaceService {
-    private final WorkspaceRepository repository;
-
-    public WorkspaceServiceImpl(WorkspaceRepository repository) {
-        this.repository = repository;
-    }
+//    private final WorkspaceRepository repository;
+//
+//    public WorkspaceServiceImpl(WorkspaceRepository repository) {
+//        this.repository = repository;
+//    }
 
     @Override
     public Optional<Workspace> getWorkspace(UUID workspaceId) {
-        return repository.find(workspaceId);
+        return Optional.empty();
+//        return repository.find(workspaceId);
     }
 }

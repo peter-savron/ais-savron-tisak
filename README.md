@@ -22,6 +22,12 @@ The build puts the application in `api-cli/target/quarkus-app/`. Keep that direc
 java -jar api-cli/target/quarkus-app/quarkus-run.jar --help
 ```
 
+If able to run sh scripts you can also call it like: 
+
+```
+./bistra --help
+```
+
 ## Native image
 
 ArcadeDB library must be prepared for embadded mode based on their github repo, then it can be built
