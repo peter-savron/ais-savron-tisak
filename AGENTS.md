@@ -36,6 +36,10 @@ Key technologies used are Java 21 and Maven 3.9. If you think a dependency is mi
 
 You are writing in the Quarkus CDI framework do always prefer injection and `@ApplicationScoped`  beans over static methods and classes.
 
+Always put configurations in Config classes in the relevant module, properties should follow the `bistra.{module-name}.{config-name}.{property}` naming pattern. Never inject config properties directly. If module is core module name must be omitted. 
+
+Avoid creating variables for values that are used once like `Instant now = Instant.now(); myModel.setUpdatedAt(now);` create variable only if it is used at least twice.
+
 #### Preferred code patterns
 
 Prefer fluent java APIs over code blocks. Use `Optional.ofNullable` for null checks and `Collection.stream` for iteration through lists when applicable.
@@ -43,6 +47,10 @@ Prefer fluent java APIs over code blocks. Use `Optional.ofNullable` for null che
 Keep simple one-line checks and calls at the call site. Avoid extracting them into boilerplate helper methods.
 
 Use lombok's `@JBossLog` for all logging, it is configured to generate a `log` named logger.
+
+Never pass `Optional` as method parameter type, parameters should always be concrete types.
+
+Never create copies of objects to update it, all operations should be done in place when possible. It should be avoided where possible, that there are two instances of the same type but with different name in a method body. Exceptions exist (like implementation of equals etc.).  
 
 ## Self-improvement
 

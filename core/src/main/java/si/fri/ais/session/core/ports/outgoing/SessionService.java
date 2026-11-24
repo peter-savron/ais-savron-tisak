@@ -14,16 +14,18 @@ import si.fri.ais.session.core.models.commands.SessionUse;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public interface SessionService {
     /** Validates the preferences and initializes timestamps. An occupied slot requires confirmed PID reuse. */
     Session start(@NotNull @Valid SessionStart command);
 
     /**
-     * Returns empty for an inactive slot. Requires login for the selected user
-     * and refreshes a usable session before returning it.
+     * Resolves the selected session and its linked target, if present.
+     * Returns empty for an inactive slot. An inactive target or logged-out user
+     * prevents the refresh.
      */
-    Optional<Session> get(@NotNull @Valid SessionGet command);
+    Optional<ResolvedSession> get(@NotNull @Valid SessionGet command);
 
     /** Validates the resulting preferences and refreshes the updated session. */
     Session set(@NotNull @Valid SessionSet command);
@@ -44,9 +46,8 @@ public interface SessionService {
     void delete(@NotNull @Valid SessionDelete command);
 
     /**
-     * Lists active named sessions by descending last access, then ascending identifier.
-     * When usableOnly is true, includes only sessions eligible for selection by use.
+     * Lists the user's active named sessions by descending last access, then ascending identifier.
      * Listing leaves last access and expiry untouched.
      */
-    List<Session> listNamed(boolean usableOnly);
+    List<Session> listNamed(@NotNull UUID userId);
 }
