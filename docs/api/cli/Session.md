@@ -37,7 +37,12 @@ Resolve the user name to a UUID first, then resolve a supplied workspace name am
 
 ## Common session lookup
 
-For `session get` and commands that need implicit session defaults, look up the invoking shell’s PID first. If no active session matches that PID (and shell instance when verifiable), look up `_global`. An explicit selector looks up its identifier directly and reports an unavailable session if the lookup fails.
+For `session get` and commands that need session defaults, apply the following order after expiry cleanup.
+
+1. If a selector flag is supplied, use its session directly. `--name <name>` selects that named session and `--global` selects the global slot. An unavailable explicit selection is an error.
+2. With no selector flag, select the active local session for the invoking PID and shell instance (when verifiable).
+3. If no active local session matches, select `_global`.
+4. If the global fallback is also inactive, report an inactive-session error.
 
 After expiry cleanup, when the terminal session has `usesSession` set, retrieve the referenced named or global session by its identifier. Return the terminal session as the parent with its own fields intact, including `usesSession`, and attach the complete referenced session as a nested `linkedSession` object. Successful resolution refreshes both sessions. If a stored link cannot be resolved, report the referenced session as unavailable. For example, after `session use --name review`, `session get` shows the terminal session with `review` attached, and `session get --name review` shows `review` directly.
 
