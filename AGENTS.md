@@ -50,7 +50,9 @@ Use lombok's `@JBossLog` for all logging, it is configured to generate a `log` n
 
 Never pass `Optional` as method parameter type, parameters should always be concrete types.
 
-Never create copies of objects to update it, all operations should be done in place when possible. It should be avoided where possible, that there are two instances of the same type but with different name in a method body. Exceptions exist (like implementation of equals etc.).  
+Never create copies of objects to update it, all operations should be done in place when possible. It should be avoided where possible, that there are two instances of the same type but with different name in a method body. Exceptions exist (like implementation of equals etc.).
+
+When dealing with synchronous operations, allways assert that code is not blocking (so use `ReentrantLock` instead of `synchronized` etc.).
 
 ## Self-improvement
 
