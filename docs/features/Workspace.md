@@ -1,30 +1,32 @@
 # Workspace
 
-## Fields
+A workspace groups components from different parts of the app under one owner.
 
-- `id`
-- `name` unique across User workspaces
-- `owner` [User](User.md#User) who owns the workspace
-- `context` workspace-specific context (short info about the company owning it, generic info, instructions for agents, etc.)
-- `config` whatever config could be applied to the whole workspace (will be expanded later)
-  - `language` localization to be used for the workspace (optional)
-- `secrets` workspace-wide secrets
-- `security` security configurations (URL blacklist/whitelist, tool usage permissions)
-- `imports` what data from other workspaces it imports
-- `exports` what data from the workspace it exports
+## Model
 
-## Actions
+| Field | Definition |
+| --- | --- |
+| `id` | Stable UUID used for direct lookup. |
+| `name` | Required code name following the shared [name identifier rules](NameIdentifier.md). It is unique among workspaces with the same owner. |
+| `ownerId` | UUID of the [user](User.md) who owns the workspace. |
+| `title` | Optional display title. |
+| `description` | Optional description of up to 1,000 characters, including newlines. |
 
-### Create workspace
+## Access
 
-### Update workspace
+Every operation requires [AppContext](AppContext.md). The workspace core authorizes each operation using the acting user ID in that context. The acting user becomes the owner at creation and is the only user who can retrieve, update, or delete the workspace. Listings and name lookups are scoped to that user. For operations targeting a workspace by ID, the core verifies ownership before returning or changing it. A workspace owned by another user produces the same result as a missing workspace.
 
-Using flags, you specify what you would like to update.
+## Operations
 
-### Delete workspace
+| Operation | Behavior |
+| --- | --- |
+| Create | Creates a workspace for the acting user. Validates the name and rejects a duplicate within that user's workspaces. |
+| Update | Changes any supplied combination of name, title, and description. Omitted fields retain their values. A name change follows the same validation and uniqueness rules as creation. |
+| Delete | Removes the workspace. |
+| Get by ID | Retrieves an owned workspace by its UUID. |
+| Get by name | Retrieves a workspace by its exact name within the acting user's workspaces. |
+| List | Returns all workspaces owned by the acting user. Returns an empty list when the user owns none. |
 
-Prompts for confirmation.
+A [session](Session.md) can select an accessible workspace as a command default.
 
-### Use workspace
-
-Can be flagged to be user-session wide or terminal session wide, unless flagged differently all commands.
+See the [CLI specification](../api/cli/Workspace.md) and [ArcadeDB storage specification](../integrations/arcadedb/Workspace.md).

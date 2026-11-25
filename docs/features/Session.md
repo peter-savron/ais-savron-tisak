@@ -19,7 +19,7 @@ Callers need only supply `userId` to start a session. For stored sessions, Start
 | --- | --- |
 | Global | Reserved literal `_global`. There is one global slot per local installation. |
 | Terminal | Decimal PID of the invoking terminal's shell. Invocations from the same shell use the same slot. |
-| Named | Case-sensitive name matching the [user name format](User.md#fields), `[A-Za-z][A-Za-z0-9_-]{0,63}`. |
+| Named | Name matching the shared [name identifier rules](NameIdentifier.md). |
 
 The identifier determines the kind. A terminal slot belongs to the shell instance that started it. Compare shell instance identities when both are available. A confirmed mismatch excludes the old slot from lookup and allows Start to replace it atomically with a fresh terminal session. When identity cannot be checked, match by PID and rely on the configured terminal idle timeout.
 

@@ -27,7 +27,7 @@ Each short flag is available on the same actions as its long form.
 | `session stop [selector]` | Stops the selected session. Reports an inactive session if the slot has no active record. |
 | `session delete [--name <session-name>]` | Opens a selector of stored named sessions if the name is omitted. Deletes the named session if it exists after expiry cleanup. Terminals that referenced it resume using their own preferences. Reports a missing record if it is already absent. |
 | `session set [selector] [--user <name>] [--workspace <name>]` | Updates an active session. With one option, preserves the other value. With neither option, interactively prompts for both, allowing Enter to keep each current value. At least one value must change. |
-| `session get [selector]` | Prints the kind (`global`, `terminal`, or `named`), identifier, workspace name and UUID (or unset), user name and UUID, UTC last access and expiry after refresh, and `usesSession` (selected identifier or unset). Includes the linked session as a nested `linkedSession` object when present. Reports an inactive session if lookup finds no active record. |
+| `session get [selector]` | Prints the kind (`global`, `terminal`, or `named`), identifier, workspace name (or unset), user name, UTC last access and expiry after refresh, and `usesSession` (selected identifier or unset). Includes the linked session as a nested `linkedSession` object with the same display fields when present. Reports an inactive session if lookup finds no active record. |
 
 ## Names and prompts
 
