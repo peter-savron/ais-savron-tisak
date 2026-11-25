@@ -17,6 +17,7 @@ import si.fri.ais.session.core.ports.incoming.SessionRepository;
 import si.fri.ais.session.core.ports.outgoing.SessionService;
 import si.fri.ais.user.core.models.User;
 import si.fri.ais.user.core.ports.outgoing.UserService;
+import si.fri.ais.workspace.core.models.WorkspaceContext;
 import si.fri.ais.workspace.core.ports.outgoing.WorkspaceService;
 
 import java.time.Duration;
@@ -57,8 +58,7 @@ public class SessionServiceImpl implements SessionService {
     public Session start(SessionStart command) {
         requireUser(command.getUserId(), false);
         UUID workspaceId = command.getWorkspaceId();
-        Optional.ofNullable(workspaceId).ifPresent(id -> workspace.getWorkspace(id)
-                .orElseThrow(() -> new SessionException(WORKSPACE_UNAVAILABLE, id.toString())));
+        validateWorkspace(command.getUserId(), workspaceId);
         SessionSlot slot = command.getSlot();
         Session session = Session.builder()
                 .slot(slot)
@@ -84,8 +84,7 @@ public class SessionServiceImpl implements SessionService {
         UUID userId = Optional.ofNullable(command.getUserId()).orElse(session.getUserId());
         UUID workspaceId = Optional.ofNullable(command.getWorkspaceId()).orElse(session.getWorkspaceId());
         requireUser(userId, false);
-        Optional.ofNullable(workspaceId).ifPresent(id -> workspace.getWorkspace(id)
-                .orElseThrow(() -> new SessionException(WORKSPACE_UNAVAILABLE, id.toString())));
+        validateWorkspace(userId, workspaceId);
 
         session.setUserId(userId);
         session.setWorkspaceId(workspaceId);
@@ -146,6 +145,12 @@ public class SessionServiceImpl implements SessionService {
     private Session requireTargetSession(String targetId) {
         return repository.find(SessionSlot.builder().id(targetId).build())
                 .orElseThrow(() -> new SessionException(LINKED_SESSION_INACTIVE, targetId));
+    }
+
+    private void validateWorkspace(UUID userId, UUID workspaceId) {
+        Optional.ofNullable(workspaceId).ifPresent(id -> workspace
+                .getWorkspace(new WorkspaceContext(userId, id))
+                .orElseThrow(() -> new SessionException(WORKSPACE_UNAVAILABLE, id.toString())));
     }
 
     private void requireUser(UUID id, boolean loginRequired) {

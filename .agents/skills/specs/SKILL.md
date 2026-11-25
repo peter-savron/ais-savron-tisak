@@ -19,6 +19,10 @@ Core layer should handle the bulk of the business logic:
 - mutations that are applied to the business objects;
 - conditions and mutations that apply to the operation/process and other business logic.
 
+When an operation creates a resource owned by the acting user, specify that core
+verifies the user exists before creating it. Operations on existing resources can
+use owner-scoped lookups alone when their normal missing-resource behavior applies.
+
 ## Storage
 
 storage layer has just two main concerns:

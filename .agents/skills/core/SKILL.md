@@ -17,6 +17,8 @@ One model per feature - well documented - model should be annotated with `@Super
 
 All well validated
 
+Avoid duplicating Jakarta Bean Validation constraints in constructors. Use cascading validation at the service boundary for constrained input models.
+
 ## Interfaces
 
 ### Repositories
@@ -24,6 +26,8 @@ All well validated
 All write methods in repository should return `void`, query operations should return either `Optional` or `List`. Update interfaces should take just one parameter which will be updated in place.
 
 ## Core implementations
+
+Inject repository interfaces directly through service constructors. Do not wrap repository dependencies in CDI `Instance<T>`, unless there is a valid reason to search for correct instance.
 
 Single-record lookups exposed to other features should return `Optional` when a record may be absent. When an operation requires the record, the calling feature should use `orElseThrow` with its own exception.
 

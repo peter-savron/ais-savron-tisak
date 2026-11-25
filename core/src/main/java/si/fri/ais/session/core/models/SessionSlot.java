@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import si.fri.ais.common.core.models.NamedObject;
 
 import java.time.Instant;
 
@@ -15,7 +16,7 @@ import java.time.Instant;
 @SuperBuilder
 public class SessionSlot {
     public static final String GLOBAL_ID = "_global";
-    public static final String NAME_FORMAT = "[A-Za-z][A-Za-z0-9_-]{0,63}";
+    public static final String NAME_FORMAT = NamedObject.NAME_FORMAT;
     public static final String SHARED_ID_FORMAT = GLOBAL_ID + "|" + NAME_FORMAT;
     private static final String TERMINAL_ID_FORMAT = "[1-9][0-9]*";
     public static final String ID_FORMAT = SHARED_ID_FORMAT + "|" + TERMINAL_ID_FORMAT;

@@ -7,6 +7,7 @@ import si.fri.ais.session.core.models.ResolvedSession;
 import si.fri.ais.session.core.models.Session;
 import si.fri.ais.session.core.models.SessionSlot;
 import si.fri.ais.user.core.ports.outgoing.UserService;
+import si.fri.ais.workspace.core.models.WorkspaceContext;
 import si.fri.ais.workspace.core.ports.outgoing.WorkspaceService;
 
 import java.io.PrintWriter;
@@ -49,8 +50,10 @@ public class SessionCliPrinter {
         if (session.getWorkspaceId() == null) {
             out.printf("%sworkspace: unset%n", indent);
         } else {
+            WorkspaceContext context = new WorkspaceContext(session.getUserId(), session.getWorkspaceId());
             out.printf("%sworkspace: %s (%s)%n", indent,
-                    workspaces.getWorkspace(session.getWorkspaceId()).map(NamedObject::getName).orElse("unavailable"),
+                    workspaces.getWorkspace(context)
+                            .map(NamedObject::getName).orElse("unavailable"),
                     session.getWorkspaceId());
         }
         out.printf("%slastAccessedAt: %s%n", indent, session.getLastAccessedAt());
