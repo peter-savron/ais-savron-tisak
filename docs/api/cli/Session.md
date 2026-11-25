@@ -2,6 +2,8 @@
 
 The [Session feature](../../features/Session.md) defines identifiers, validation, and expiry.
 
+Session defaults carry reusable preferences across commands. Commands that need a chat ID obtain it outside the session.
+
 ## Session selector
 
 The `start`, `stop`, `set`, and `get` actions accept either `--global` or `--name <session-name>`. With neither option, `start`, `stop`, and `set` target the current terminal slot. `get` uses the common lookup below. The options are mutually exclusive. These selectors apply to the invocation. Use `session use` to switch the session for subsequent commands.

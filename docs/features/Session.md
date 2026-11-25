@@ -2,6 +2,8 @@
 
 A session provides the default [user](User.md) and [workspace](Workspace.md) for commands that support session context. It stores references to those records. Commands still apply their own authorization rules.
 
+A session may hold only data and preferences that can safely be reused across separate terminal invocations. Skill preferences, tool setup, and selected features are eligible when they meet this rule. Chat IDs and other state tied to an individual chat or command invocation are excluded from session state.
+
 ## Model
 
 Callers need only supply `userId` to start a session. For stored sessions, Start derives the slot identifier from the selector and initializes the timestamps.

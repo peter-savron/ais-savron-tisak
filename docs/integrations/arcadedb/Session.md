@@ -4,6 +4,8 @@ Store [sessions](../../features/Session.md) as documents of type `Session`. Star
 
 Every session document requires `userId`, `lastAccessedAt`, and `expiresAt`. Store `workspaceId` and `usesSession` when present. Terminal documents store shell-instance metadata when available. On confirmed PID reuse, replace the old terminal document and its preferences in the same transaction as a successful Start. A workspace-less session uses the same document type and index as any other session. Setting or changing the workspace updates `workspaceId` on the existing document. Workspace deletion removes sessions that reference that workspace.
 
+Only persist state that meets the [Session feature’s cross-invocation rule](../../features/Session.md). Session documents must exclude chat IDs and invocation-specific state.
+
 ## Expiry and concurrent changes
 
 Every Session repository call, including reads and listings, first deletes all documents at or past their `expiresAt` and clears matching terminal references. Cleanup persists even when the requested operation cannot proceed. Coordinate cleanup with refresh and identifier reuse so it cannot delete a refreshed or replacement session.
