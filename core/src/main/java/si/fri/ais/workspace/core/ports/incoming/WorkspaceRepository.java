@@ -23,7 +23,7 @@ public interface WorkspaceRepository {
     void update(@NotNull @Valid Workspace workspace);
 
     /**
-     * Removes the workspace, sessions that reference it, and links to those sessions as one operation.
+     * Removes the workspace.
      * @throws WorkspaceException with DELETION_BLOCKED if remaining components prevent removal
      */
     void delete(@NotNull Workspace workspace);
