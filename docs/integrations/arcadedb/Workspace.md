@@ -4,7 +4,7 @@ Store [workspaces](../../features/Workspace.md) as `Workspace` documents with `i
 
 Use a unique index on `id` and a case-sensitive unique composite index on `(ownerId, name)`. Support lookup by application UUID and lookup and listing by the owner ID supplied by the core. The [workspace core](../../features/Workspace.md#access) makes authorization decisions. Enforce uniqueness during creation and rename, including concurrent writes, and roll back the entire mutation if it fails.
 
-When deleting a workspace, follow the existing [session storage cleanup rules](Session.md) for sessions that reference it. Apply the workspace removal and session cleanup in one transaction.
+When deleting a workspace, follow the existing [session storage cleanup rules](Session.md) for sessions that reference it. Apply the workspace document removal and session cleanup in one transaction. See the [filesystem specification](../filesystem/Workspace.md) for the workspace directory lifecycle.
 
 ## Graph modeling
 

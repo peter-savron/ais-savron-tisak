@@ -1,6 +1,6 @@
 # Secret
 
-Secrets can be tied to a user or a workspace and mostly contain API keys or similar. Secrets stored in the cloud should be handled differently from local secrets.
+Secrets can be tied to a user or a [workspace](Workspace.md) and mostly contain API keys or similar. Secrets stored in the cloud should be handled differently from local secrets.
 They should never be passed directly to agents.
 
 ## Fields

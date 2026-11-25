@@ -23,11 +23,19 @@ Core layer should handle the bulk of the business logic:
 
 storage layer has just two main concerns:
 
+- what is the right kind of storage to be used (when having relational DB, NoSQL, VDB etc. available);
 - how to retrieve data from persistent storageM
 - how to write data to persistent storage;
 - how to specify the schema of the persistent data to be stored, how should data be linked;
 - also atomicity and consistency of the write read operations should be considered (this is mostly a storage medium wide concern).
 - need for indexes to speed up search.
+
+### Filesystem
+
+One storing files on filesystem it should be specified:
+
+- when to create subfolder;
+- how the stored files lay inside the folder structure.
 
 ### ArcadeDB
 

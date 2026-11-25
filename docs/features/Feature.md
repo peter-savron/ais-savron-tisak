@@ -1,6 +1,6 @@
 # Feature
 
-A feature is the core component of a workspace. Features can be grouped and put into a hierarchy.
+A feature is the core component of a [workspace](Workspace.md). Features can be grouped and put into a hierarchy.
 A feature contains specs, spec derivation (pages, knowledge graph) and implementation of the spec.
 
 ## Fields

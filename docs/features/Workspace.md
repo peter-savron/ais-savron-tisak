@@ -1,6 +1,8 @@
 # Workspace
 
-A workspace groups components from different parts of the app under one owner.
+A workspace groups components from different parts of the app under one owner. Workspace operations manage the container and its metadata. Each component defines its own data, operations, and behavior within that scope.
+
+[Feature](Feature.md) owns feature hierarchies, [Secret](Secret.md) owns workspace-scoped secret operations, and [Functionality](Functionality.md) defines behavior reusable across workspaces. [Session](Session.md) owns the selection of a workspace as a command default.
 
 ## Model
 
@@ -22,11 +24,9 @@ Every operation requires [AppContext](AppContext.md). The workspace core authori
 | --- | --- |
 | Create | Creates a workspace for the acting user. Validates the name and rejects a duplicate within that user's workspaces. |
 | Update | Changes any supplied combination of name, title, and description. Omitted fields retain their values. A name change follows the same validation and uniqueness rules as creation. |
-| Delete | Removes the workspace. |
+| Delete | Removes the workspace after any remaining components have been handled through their own lifecycle rules. If a component still requires the workspace, reject deletion. |
 | Get by ID | Retrieves an owned workspace by its UUID. |
 | Get by name | Retrieves a workspace by its exact name within the acting user's workspaces. |
 | List | Returns all workspaces owned by the acting user. Returns an empty list when the user owns none. |
 
-A [session](Session.md) can select an accessible workspace as a command default.
-
-See the [CLI specification](../api/cli/Workspace.md) and [ArcadeDB storage specification](../integrations/arcadedb/Workspace.md).
+See the [CLI specification](../api/cli/Workspace.md) [ArcadeDB storage specification](../integrations/arcadedb/Workspace.md), and [filesystem storage specification](../integrations/filesystem/Workspace.md).
