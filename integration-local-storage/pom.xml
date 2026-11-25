@@ -6,7 +6,7 @@
         <artifactId>coding-agent-parent</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
-    <artifactId>integration-arcadedb</artifactId>
+    <artifactId>integration-local-storage</artifactId>
     <dependencies>
         <dependency>
             <groupId>si.fri.ais</groupId>

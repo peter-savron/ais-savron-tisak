@@ -20,7 +20,7 @@
         </dependency>
         <dependency>
             <groupId>si.fri.ais</groupId>
-            <artifactId>integration-arcadedb</artifactId>
+            <artifactId>integration-local-storage</artifactId>
             <scope>runtime</scope>
         </dependency>
         <dependency>

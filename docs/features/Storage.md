@@ -1,7 +1,7 @@
 # Storage
 
-Specifications about the place where some data will be persistently stored (keyring, filesystem, various databases).
+[Local storage](../integrations/local-storage/README.md) provides persistence for the local application.
 
 ## Keys
 
-User encryption keys (and other encryption keys) willl be curretnly stored in the `/keys` subfolder inside app data.
+The application stores user encryption keys separately from user records through the key repository. See the [local storage layout](../integrations/local-storage/README.md#current-layout).

@@ -71,7 +71,7 @@
             </dependency>
             <dependency>
                 <groupId>si.fri.ais</groupId>
-                <artifactId>integration-arcadedb</artifactId>
+                <artifactId>integration-local-storage</artifactId>
                 <version>${project.version}</version>
             </dependency>
         </dependencies>
@@ -118,7 +118,7 @@
     </build>
     <modules>
         <module>core</module>
-        <module>integration-arcadedb</module>
+        <module>integration-local-storage</module>
         <module>api-cli</module>
     </modules>
 </project>

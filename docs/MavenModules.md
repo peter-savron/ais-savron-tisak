@@ -1,6 +1,6 @@
 # Maven module migration plan
 
-Build the local CLI as the single Quarkus application. Its runtime needs both user services and embedded ArcadeDB. The split gives each dependency an owner. Package savings come from removing unused runtime dependencies and their transitive dependencies from the application graph.
+Build the local CLI as the single Quarkus application. Its runtime needs core services and [local storage](integrations/local-storage/README.md). The split gives each dependency an owner. Package savings come from removing unused runtime dependencies and their transitive dependencies from the application graph.
 
 ## Target reactor
 
@@ -8,10 +8,10 @@ Build the local CLI as the single Quarkus application. Its runtime needs both us
 | --- | --- | --- |
 | Root | pom | Aggregate the three children. Manage Java 21, platform BOM, library versions and plugin versions centrally. Keep application dependencies out of the parent's inherited dependencies. |
 | core | jar | Own common and user models, validation, ports, services and password hashing. Declare Bouncy Castle for Argon2 and the CDI, validation, logging and configuration APIs used by these classes.  |
-| integration-arcadedb | jar | Depend on core. Own common ArcadeDB lifecycle, producers and changelog scripts plus user repository implementations, mappers and values. Declare the engine and Jackson annotations used by persistence models directly. |
-| api-cli | quarkus | Depend on core at compile time and integration-arcadedb at runtime for CDI wiring. Own CLI commands, prompts, exception mappers, terminal providers, CLI file logging and application configuration. Declare Picocli, the required JLine components, ArC and the Hibernate Validator extension here. |
+| integration-local-storage | jar | Depend on core. Implement repository ports using local storage. Own filesystem persistence and embedded ArcadeDB lifecycle, schema changelogs, repositories and document mappers. Declare the engine and Jackson annotations used by persistence models directly. |
+| api-cli | quarkus | Depend on core at compile time and integration-local-storage at runtime for CDI wiring. Own CLI commands, prompts, exception mappers, terminal providers, CLI file logging and application configuration. Declare Picocli, the required JLine components, ArC and the Hibernate Validator extension here. |
 
-Keep Java package names through the move. In particular, the two user service implementations with `CliImpl` names implement business operations and can stay with their ports. The CLI logging implementation belongs with the executable even though its current package contains `integration.local`. See the [user feature](features/User.md), [CLI contract](api/cli/User.md) and [ArcadeDB session design](integrations/arcadedb/Session.md).
+Local storage adapters use feature-specific `integrations.local` packages. Shared ArcadeDB infrastructure lives in `common.integration.local.arcadedb`. In particular, the two user service implementations with `CliImpl` names implement business operations and can stay with their ports. The CLI logging implementation belongs with the executable even though its current package contains `integration.local`. See the [user feature](features/User.md), [CLI contract](api/cli/User.md) and [ArcadeDB session design](integrations/arcadedb/Session.md).
 
 ## Migration sequence
 

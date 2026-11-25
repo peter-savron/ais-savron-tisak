@@ -9,7 +9,7 @@
 - `config` various user-wide configurations
   - `preview-changes` ask for confirmation before running commands
 
-User encryption keys are stored separately, at the moment in the app data folder. More about storage strategies in [Storage](Storage.md#Keys) 
+User encryption keys are stored separately from user records. See [Storage](Storage.md#keys).
 
 See the [User CLI specification](../api/cli/User.md) for command options and prompts.
 
