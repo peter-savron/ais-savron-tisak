@@ -16,7 +16,7 @@ A workspace groups components from different parts of the app under one owner. W
 
 ## Access
 
-Every operation requires [AppContext](AppContext.md). The workspace core authorizes each operation using the acting user ID in that context. The acting user becomes the owner at creation and is the only user who can retrieve, update, or delete the workspace. Listings and name lookups are scoped to that user. For operations targeting a workspace by ID, the core verifies ownership before returning or changing it. A workspace owned by another user produces the same result as a missing workspace.
+Every workspace operation requires the acting user's UUID. The workspace core uses it to authorize the operation. The acting user becomes the owner at creation and is the only user who can retrieve, update, or delete the workspace. Listings and name lookups are scoped to that user. For operations targeting a workspace by ID, the core verifies ownership before returning or changing it. A workspace owned by another user produces the same result as a missing workspace.
 
 ## Operations
 

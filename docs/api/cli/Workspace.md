@@ -8,7 +8,7 @@ The [workspace feature](../../features/Workspace.md) defines fields and owner ac
 | `-u`, `--user <name>` | Uses the specified logged-in user for this invocation. When omitted, resolve the user through the [session defaults](Session.md#common-session-lookup). |
 | `-I`, `--no-interactive` | Skips prompts. Required selectors and values must be supplied as options. |
 
-Resolve the user before looking up a workspace. Pass the resolved user UUID and CLI context in [AppContext](../../features/AppContext.md) to the workspace core, which authorizes the operation.
+Resolve the user before looking up a workspace. Pass the acting user's UUID to the workspace core, which authorizes the operation.
 
 | Command | Behavior |
 | --- | --- |

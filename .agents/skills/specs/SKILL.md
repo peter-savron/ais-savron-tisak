@@ -56,7 +56,7 @@ When defining a schema determine whether Document or Node should be used and wha
 Api spec specify how should input data be passed by the consumer to the service. Main concerns of API layer are:
 
 - where to retrieve authentication data (when authn data is applicable - it makes sense one applying to online service, for local functionalities will be mostly ignored)
-- where to retrieve current context (where is specified who is using the app and where in the app is he located currently);
+- what context each functionality requires and where the API resolves those inputs;
 - how to retrieve input for user in a way that causes the less friction;
 - depending on the kind of the API, authentication can be resolved on the API layer. API layer can require the user to be authenticated as part of the input.
 
