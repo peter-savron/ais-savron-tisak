@@ -33,7 +33,7 @@ public class FallbackExceptionMapper implements CliExceptionMapper {
     public int handle(Throwable exception, CommandLine cmd, ParseResult parseResult) {
 
         String message = ofNullable(exception.getMessage()).orElse(exception.getClass().getSimpleName());
-        log.errorf(exception, "Command execution failed: %s", message);
+        log.error("Command execution failed.", exception);
 
         String formatted = new AttributedStringBuilder()
                 .style(AttributedStyle.DEFAULT.foreground(AttributedStyle.RED).bold())

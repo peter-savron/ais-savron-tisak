@@ -21,7 +21,7 @@ public class UserCliExceptionMapper implements CliExceptionMapper {
         String message = switch (userException.getCode()) {
             case USER_CREATE_NAME_NOT_UNIQUE -> "A user with that name already exists.";
         };
-        log.debug("User command failed", exception);
+        log.info("User command failed", exception);
         command.getErr().println("Error: " + message);
         return CommandLine.ExitCode.SOFTWARE;
     }

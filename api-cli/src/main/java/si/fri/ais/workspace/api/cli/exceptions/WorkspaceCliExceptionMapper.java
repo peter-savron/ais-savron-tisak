@@ -37,7 +37,7 @@ public class WorkspaceCliExceptionMapper implements CliExceptionMapper {
             case INVALID_PASSWORD_OPTION -> "Use %d to %d ASCII letters, digits, or punctuation for --password."
                     .formatted(MIN_PASSWORD_LENGTH, MAX_PASSWORD_LENGTH);
         };
-        log.error("Workspace CLI command failed.", exception);
+        log.info("Workspace CLI command failed.", exception);
         command.getErr().println("Error: " + message);
         return CommandLine.ExitCode.SOFTWARE;
     }

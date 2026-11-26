@@ -17,7 +17,7 @@ public class SessionCliExceptionMapper implements CliExceptionMapper {
     @Override
     public int handle(Throwable exception, CommandLine command, CommandLine.ParseResult parseResult) {
         if (exception instanceof SessionCliException cliException) {
-            log.debug("Session command failed.", cliException);
+            log.info("Session command failed.", cliException);
             command.getErr().println(messageFor(cliException));
             return CommandLine.ExitCode.SOFTWARE;
         }
@@ -35,7 +35,7 @@ public class SessionCliExceptionMapper implements CliExceptionMapper {
             case PREFERENCES_UNCHANGED -> "Supply a different user or workspace.";
             case CONCURRENT_CHANGE -> "The session changed during the operation. Retry the command.";
         };
-        log.debug("Session command failed.", exception);
+        log.info("Session command failed.", exception);
         command.getErr().println(message);
         return CommandLine.ExitCode.SOFTWARE;
     }

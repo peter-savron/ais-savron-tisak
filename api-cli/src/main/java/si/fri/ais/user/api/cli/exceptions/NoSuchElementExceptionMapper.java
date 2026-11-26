@@ -18,7 +18,7 @@ public class NoSuchElementExceptionMapper implements CliExceptionMapper {
 
     @Override
     public int handle(Throwable exception, CommandLine command, CommandLine.ParseResult parseResult) {
-        log.debug("User command failed", exception);
+        log.info("User command failed", exception);
         command.getErr().println("Error: Something not found not found.");
         return CommandLine.ExitCode.SOFTWARE;
     }

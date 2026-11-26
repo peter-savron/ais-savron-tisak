@@ -83,7 +83,15 @@ Default to one `CliExceptionMapper` per exception type. A mapper may translate m
 
 Handle all exceptions at the CLI boundary. Print only a friendly, actionable message to the terminal and return an appropriate exit code. Never print raw exception messages, exception types, or stack traces to the terminal. Use a generic user-facing message in the fallback mapper.
 
-Annotate exception handlers with Lombok's `@JBossLog` and log the exception to the file log with `log.error(message, exception)`. Pass the exception as the second argument so the file log retains the stack trace.
+#### Log levels
+
+Annotate exception handlers with Lombok's `@JBossLog` and log to the file log. Choose the level for each failure.
+
+- **INFO** (`log.info(message, exception)`) for mapped validation failures, not-found conditions, and other expected command failures.
+- **ERROR** (`log.error(message, exception)`) for unexpected failures, including every unmapped exception handled by the fallback mapper.
+- **DEBUG** (`log.debug(message, exception)`) for user-cancelled prompts and end of input.
+
+Pass the exception as the second argument so the file log retains the stack trace.
 
 ### CLI output
 

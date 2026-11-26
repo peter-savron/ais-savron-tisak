@@ -22,7 +22,7 @@ public class WorkspaceExceptionMapper implements CliExceptionMapper {
             case WORKSPACE_NOT_FOUND -> "Workspace not found.";
             case DELETION_BLOCKED -> "Remove the workspace's remaining components before deleting it.";
         };
-        log.error("Workspace command failed.", exception);
+        log.info("Workspace command failed.", exception);
         command.getErr().println("Error: " + message);
         return CommandLine.ExitCode.SOFTWARE;
     }
