@@ -9,7 +9,7 @@ A workspace uses a SpecSource to select upstream items. An OriginalSpec points t
 | Field | Required | Meaning |
 | --- | --- | --- |
 | Source ID | Yes | Identifies the source referenced by OriginalSpecs and RawSpecs. |
-| Spec name | Yes | Stable directory name assigned at creation, unique within the workspace. See [SpecService](SpecService.md). |
+| Spec name | Yes | Stable directory name assigned at creation, unique within the workspace. See [SpecSourceService](SpecSourceService.md). |
 | Workspace UUID | Yes | Identifies the [workspace](Workspace.md) that owns the source. |
 | Status | Yes | Lifecycle enum. Create as `ACTIVE`. Deletion transitions to `MARKED_FOR_DELETION`, which permits only deletion progress as a mutation. |
 | SpecType | Yes | Defines the accepted location and selection data. |
@@ -24,8 +24,8 @@ An OriginalSpec stores the source ID, locator and metadata. The original content
 | Field | Required | Meaning |
 | --- | --- | --- |
 | Source ID | Yes | ID of the SpecSource used to read the item. |
-| Item identity | Yes | Identifies the item within its source. Use a stable upstream identifier when available and a normalized locator otherwise. |
-| Current locator | Yes | Location at the time of retrieval. Recording it separately lets an item with a stable identifier retain its identity after a move. |
+| Item identity | Yes | The normalized path relative to the effective spec root is the sole identity within a source. The source supplies the lookup scope. A content hash identifies an observation of the item. |
+| Current locator | Yes | Relative path used to retrieve this observation. |
 | Input format | Yes | Upstream format of the item, which may be binary. |
 | Original content hash | After a successful read | Hash of the exact retrieved bytes for a file or of the SpecType’s stable serialization for other content. |
 | Upstream revision | When available | Upstream revision of the content actually retrieved. |
@@ -45,7 +45,7 @@ A new or changed reference is `PENDING`. The feature that continues processing m
 | Input format | Yes | OriginalSpec’s upstream content format. |
 | Original content hash | Yes | OriginalSpec’s hash of the retrieved content. |
 | Upstream revision | When available | Revision recorded on the OriginalSpec. |
-| Deletion state | Yes | Active or soft-deleted. Retain the last live publication for [rollback](SpecService.md#removal-and-visibility). |
+| Deletion state | Yes | Active or soft-deleted. Retain the last live publication for [rollback](SpecSourceService.md#removal-and-visibility). |
 | Normalized text | Yes | LLM-readable text that preserves available document structure or chat message order. |
 | Output format | Yes | Format of the normalized text, preferably Markdown or plain text. |
 | Brief metadata | Yes | Description carried forward from the OriginalSpec, kept separate from the normalized text. |
@@ -60,11 +60,11 @@ Every operation requires the acting user’s UUID. Core verifies workspace owner
 | Get | Return the source configuration by source ID. |
 | List | Return the sources of the supplied workspace, including an empty list when applicable. |
 | Update | Validate changes to the root, subfolder or selection rules. Preserve omitted fields and the source ID. Changing the root is supported but discouraged because an existing relative locator may identify a different file. Reconcile observations against the new scope before reusing processing results. |
-| Delete | Mark the source and perform the [ordered deletion](SpecService.md#source-deletion) before removing its registration. Source management never modifies the upstream files. |
+| Delete | Mark the source and perform the [ordered deletion](SpecSourceService.md#source-deletion) before removing its registration. Source management never modifies the upstream files. |
 
 ## Synchronizing OriginalSpecs
 
-Sync discovers the current selection and returns an OriginalSpec reference for each observed file. Compare source ID, relative locator and original content hash against the previous successful observation. A new path is an addition. Different bytes at the same path are an update. Identical bytes preserve the processing state on repeated scans. A rename appears as a disappearance and an addition for sources with path-based identity.
+Sync discovers the current selection and returns an OriginalSpec reference for each observed file. Compare source ID, relative locator and original content hash against the previous successful observation. A new path is an addition. Different bytes at the same path are an update. Identical bytes preserve the processing state on repeated scans. A rename appears as a disappearance and an addition when the new path has no prior publication.
 
 Report confirmed disappearance separately from exclusion by changed selection rules. An incomplete scan leaves unobserved items unresolved and preserves their last known state. Report individual read failures with the affected locator and reason. Record only verified observations as the new comparison baseline. The [DocumentProcessor](DocumentProcessor.md) transforms a file supplied for an OriginalSpec. Normalization follows conversion.
 
