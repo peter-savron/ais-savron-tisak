@@ -66,6 +66,14 @@ For LOCAL_FILES, confirmed absence and confirmed exclusion by ignore rules both 
 
 Core decides when to publish, retire or restore. Storage computes each requested diff from the committed normalized texts and returns it to core. Core uses opaque revision IDs and makes the authorization and visibility decisions.
 
+## Reads and writes during sync
+
+Atomically claim an ACTIVE source as SYNCING with the sync ID before discovery. The owning sync alone may stage changes and publish them. Reject competing syncs and all other mutations of that source or its elements (including update, delete, RawSpec restore and background writes) with a source-busy outcome. Check the claim at write time so previously admitted work cannot slip through. Unrelated sources remain available.
+
+Reads proceed against committed data. Return `potentiallyStale` with the source status from the same committed snapshot: true while SYNCING and false otherwise. Apply it to source and item reads, history, diffs, and each source represented in lists or search hits. A source-scoped empty list carries the flag on the response. This flag describes in-flight sync only; scan issues and index lag are separate.
+
+Publish the batch and release the claim to ACTIVE atomically, including successful partial or empty syncs. On abort preserve the prior publication and release the claim after discarding or fencing pending writes. After interruption, recover or abort the recorded sync before admitting a new writer. Only the current claim may complete or release the source.
+
 ## Source deletion
 
 1. Atomically change ACTIVE to MARKED_FOR_DELETION before cleanup. Hide the source’s publications from ordinary reads. Reject updates, syncs, restores and late publication callbacks. Keep owner-scoped source lookup and deletion retry available. Fence and drain in-flight storage writers before touching files.

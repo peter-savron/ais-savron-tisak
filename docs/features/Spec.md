@@ -11,7 +11,7 @@ A workspace uses a SpecSource to select upstream items. An OriginalSpec points t
 | Source ID | Yes | Identifies the source referenced by OriginalSpecs and RawSpecs. |
 | Spec name | Yes | Stable directory name assigned at creation, unique within the workspace. See [SpecSourceService](SpecSourceService.md). |
 | Workspace UUID | Yes | Identifies the [workspace](Workspace.md) that owns the source. |
-| Status | Yes | Lifecycle enum. Create as `ACTIVE`. Deletion transitions to `MARKED_FOR_DELETION`, which permits only deletion progress as a mutation. |
+| Status | Yes | Lifecycle enum. Create as `ACTIVE`. An admitted sync transitions to `SYNCING` and returns to `ACTIVE` at completion or abort. Reads during sync carry the [freshness flag](SpecSourceService.md#reads-and-writes-during-sync). Deletion transitions from `ACTIVE` to `MARKED_FOR_DELETION`, which permits only deletion progress as a mutation. |
 | SpecType | Yes | Defines the accepted location and selection data. |
 | Source root | Yes | String identifying the upstream location. The selected SpecType defines its accepted syntax, validates the supplied string and interprets its value. |
 | Subfolder | No | Selector within the root. Its syntax and interpretation belong to the SpecType. Preserve the supplied expression for type-specific validation, for example `/spec` within a monorepo or a page subtree within a Confluence space. |
