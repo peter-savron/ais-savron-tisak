@@ -2,6 +2,14 @@
 
 This [SpecSource](../../features/Spec.md) discovers local file references and reads their current contents.
 
+## Configuration description
+
+The Markdown returned by `describeConfiguration()` documents the following settings.
+
+- **Root** (required). Supply an absolute file URI such as `file:///work/repo`.
+- **Subfolder** (optional). Supply a directory relative to the root, such as `spec`. Together these example values select `/work/repo/spec`. Omit the subfolder to select the root itself.
+- **Selection**. The source scans regular files recursively and skips symbolic links. Put optional exclusion rules in `.specignore` at the effective spec root.
+
 ## Paths and retrieval
 
 Resolve the absolute file URI to a normalized absolute local directory path at creation and whenever the root is updated. The effective spec root is that directory plus the optional subfolder. Store each OriginalSpec locator relative to the effective spec root and use it as the source-scoped item identity. For source root `file:///work/repo`, subfolder `spec` and file `/work/repo/spec/api/orders.md`, the locator is `api/orders.md`.

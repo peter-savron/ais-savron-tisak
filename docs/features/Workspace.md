@@ -22,7 +22,7 @@ Every workspace operation requires the acting user's UUID. The workspace core us
 
 | Operation | Behavior |
 | --- | --- |
-| Create | Creates a workspace for the acting user. Validates the name and rejects a duplicate within that user's workspaces. |
+| Create | Creates a workspace for the acting user. Validates the name and rejects a duplicate within that user's workspaces. Creation succeeds once the workspace and its [RawSpecIndex](RawSpecIndex.md#initialization-and-changes) have been initialized. |
 | Update | Changes any supplied combination of name, title, and description. Omitted fields retain their values. A name change follows the same validation and uniqueness rules as creation. |
 | Delete | Removes the workspace after any remaining components have been handled through their own lifecycle rules. If a component still requires the workspace, reject deletion. |
 | Get by ID | Retrieves an owned workspace by its UUID. |

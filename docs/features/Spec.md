@@ -70,10 +70,11 @@ Report confirmed disappearance separately from exclusion by changed selection ru
 
 ## SpecSource interface
 
-Core authorizes the acting user against the source’s workspace before calling this outgoing interface. The source’s SpecType determines which integration can fulfill the following operations.
+The selected SpecType determines which implementation supplies configuration help, including before a source is created. For discovery and reads, core first authorizes the acting user against the source’s workspace.
 
 | Operation | Input | Result |
 | --- | --- | --- |
+| `String describeConfiguration()` | No arguments | Every implementation returns a nonempty Markdown guide describing its required and optional settings, accepted root and subfolder syntax, selection rules and an example configuration. The guide describes the type and is available without a configured source or upstream connection. |
 | Discover items | SpecSource | Apply the selection rules within the configured subfolder, or across the source root when the subfolder is omitted. Return the items observed within that scope as OriginalSpec references, each with its identity, current locator and upstream revision when available. Indicate whether discovery covered the entire selection. For incomplete discovery, return any observations obtained and the reason coverage was incomplete. |
 | Read item | SpecSource, item identity and last known locator | Resolve the reference and return the upstream content with its locator, hash and available revision at read time. If the read fails, identify the item and report access denied, confirmed missing or unresolved, with the reason. |
 
