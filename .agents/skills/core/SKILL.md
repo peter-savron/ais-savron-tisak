@@ -20,7 +20,7 @@ When creating records, add them `@Builder` from Lombok, create them via builder 
 
 All well validated
 
-Avoid duplicating Jakarta Bean Validation constraints in constructors. Use cascading validation at the service boundary for constrained input models.
+Avoid duplicating Jakarta Bean Validation constraints in constructors. Use cascading validation at the service boundary for constrained input models. Use Jakarta Bean Validation constraints such as `@AssertTrue` for cross-field constraints on action models instead of imperative service checks.
 
 Model fields should be documented with Javadocs for clarity, give examples for values and usage.
 

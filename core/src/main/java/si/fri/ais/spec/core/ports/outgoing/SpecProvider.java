@@ -1,13 +1,16 @@
 package si.fri.ais.spec.core.ports.outgoing;
 
+import si.fri.ais.common.core.utils.files.ResettableFile;
 import si.fri.ais.spec.core.exceptions.SpecSourceException;
 import si.fri.ais.spec.core.exceptions.SpecSourceValidationException;
-import si.fri.ais.spec.core.models.OriginalSpec;
+import si.fri.ais.spec.core.models.RemoteSpec;
 import si.fri.ais.spec.core.models.SpecSource;
 
 import si.fri.ais.spec.core.exceptions.SpecSourceReadException;
-import java.nio.file.Path;
+
+import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Interprets a source configuration, discovers upstream items and reads their content.
@@ -35,41 +38,29 @@ public interface SpecProvider {
     void validate(SpecSource source);
 
     /**
-     * Applies the current selection and reports each detected change once. Omit items whose content,
-     * provenance and selection state match their known state. Use UNRESOLVED or ACCESS_DENIED
-     * for item-level uncertainty. Report known items as missing or excluded only when their
-     * absence or exclusion is confirmed. Throw when discovery issues occur.
+     * Applies the current selection and returns a complete scan of upstream items, including
+     * unchanged items, move records and deletion records. Mark content changes as MODIFIED and
+     * provide movedFrom/movedTo when the provider can identify the previous and current keys.
+     * Return the scan only after the entire configured selection was scanned successfully.
+     * Throw when any issue prevents a complete result.
      *
      * @param source authorized source configuration
-     * @param known previously recorded items that can be assessed against the current scope
-     * @return changed OriginalSpecs with discovery statuses, or an empty list when no changes were detected
-     * @throws SpecSourceException with code DISCOVERY_FAILED when discovery issues occur
+     * @return all remote facts, move records and deletion records, or empty when selection is empty
+     * @throws SpecSourceException with code DISCOVERY_FAILED when a complete scan cannot be returned
      */
-    List<OriginalSpec> discover(SpecSource source, List<OriginalSpec> known);
+    List<RemoteSpec> discover(SpecSource source);
 
     /**
-     * Reads the observed version of the item and returns its content in a stable file.
-     * Verify that the retrieved bytes match the discovery reference before returning.
-     * Report a version mismatch or an unavailable item as a read failure.
+     * Reads the observed version of the item and, when present, returns its content in a stable file.
+     * Verify the observed timestamp when available before returning.
+     * Return empty when no item exists at the source. Throw a reason-coded read exception for
+     * retrieval failures; core marks an empty result or exception as Spec status UNAVAILABLE.
      *
      * @param source authorized source configuration
-     * @param observed item identity and last known locator
-     * @return a result the caller must close after use
+     * @param externalId source-scoped key used to retrieve the file
+     * @param updatedAt expected upstream modification time, or null if unknown
+     * @return a result the caller must close after use, or empty when the item is absent
      * @throws SpecSourceReadException if retrieval fails, with the reason code and underlying cause when available
      */
-    Read read(SpecSource source, OriginalSpec observed) throws SpecSourceReadException;
-
-    /** A read result that owns any resources needed to keep the retrieved file stable. */
-    interface Read extends AutoCloseable {
-        /** Returns the non-null file containing the observed version, stable until close. */
-        Path file();
-
-        /**
-         * Releases provider-owned resources, including any temporary file created for the read.
-         *
-         * @throws SpecSourceReadException with code CLEANUP_FAILED and the underlying cause if cleanup fails
-         */
-        @Override
-        void close() throws SpecSourceReadException;
-    }
+    ResettableFile read(SpecSource source, String externalId, Instant updatedAt) throws SpecSourceReadException;
 }

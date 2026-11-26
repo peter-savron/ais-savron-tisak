@@ -66,10 +66,7 @@ public class SpecSourceServiceImpl implements SpecSourceService {
 
     public void delete(SpecSourceContext context) {
         var sourceId = requireSourceId(context);
-        sources.delete(sourceId, () -> {
-            specs.deletePublications(sourceId);
-            specs.deleteOriginals(sourceId);
-        });
+        sources.delete(sourceId, () -> specs.deleteSourceSpecs(sourceId));
     }
 
     public SpecSyncResult sync(SpecSourceContext context) {
@@ -108,19 +105,20 @@ public class SpecSourceServiceImpl implements SpecSourceService {
     }
 
     private SyncEndState syncEndState(SpecSyncResult result) {
-        boolean partialFailure = result.originalSpecs().stream().anyMatch(original ->
-                original.getStatus() == OriginalSpec.Status.ACCESS_DENIED
-                        || original.getStatus() == OriginalSpec.Status.SELECTED
-                        && original.getProcessingStatus() == OriginalSpec.ProcessingStatus.FAILED);
+        boolean partialFailure = result.specs().stream().anyMatch(original ->
+                original.getStatus() == Spec.Status.ACCESS_DENIED
+                        || original.getProcessingStatus() == Spec.ProcessingStatus.FAILED);
         if (partialFailure) {
             return SyncEndState.PARTIAL_FAILURE;
         }
-        boolean unresolved = result.originalSpecs().stream()
-                .anyMatch(original -> original.getStatus() == OriginalSpec.Status.UNRESOLVED);
-        return unresolved ? SyncEndState.SUCCESS_UNRESOLVABLE_SOURCES : SyncEndState.SUCCESS;
+        if (result.specs().stream()
+                .anyMatch(original -> original.getStatus() == Spec.Status.UNRESOLVED)) {
+            return SyncEndState.SUCCESS_UNRESOLVABLE_SOURCES;
+        }
+        return SyncEndState.SUCCESS;
     }
 
-    public List<OriginalSpec> items(SpecSourceContext context) {
+    public List<Spec> items(SpecSourceContext context) {
         return get(context).map(source -> specs.items(source.getId())).orElseGet(List::of);
     }
 

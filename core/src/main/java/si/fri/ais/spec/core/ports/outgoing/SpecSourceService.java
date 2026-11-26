@@ -27,5 +27,5 @@ public interface SpecSourceService {
     void delete(@Valid @NotNull SpecSourceContext context);
 
     SpecSyncResult sync(@Valid @NotNull SpecSourceContext context);
-    List<OriginalSpec> items(@Valid @NotNull SpecSourceContext context);
+    List<Spec> items(@Valid @NotNull SpecSourceContext context);
 }

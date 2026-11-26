@@ -1,6 +1,6 @@
 # RawSpec CLI
 
-The `spec-raw` group addresses published text and its revisions. Resolve the user, workspace and source using the [spec-source CLI conventions](SpecSource.md). Select items by their source-scoped locator and pass the resolved RawSpec UUID internally. A get reads the published text even if upstream is offline.
+The `spec-raw` group addresses published text and its revisions. Resolve the user, workspace and source using the [spec-source CLI conventions](SpecSource.md). Select items by their source-scoped locator and pass the resolved Spec UUID internally. A get reads the published text even if upstream is offline.
 
 | Command | Result |
 | --- | --- |

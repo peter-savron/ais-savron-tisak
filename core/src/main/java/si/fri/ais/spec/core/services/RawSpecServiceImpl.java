@@ -8,6 +8,7 @@ import si.fri.ais.spec.core.ports.outgoing.SpecRepository;
 import si.fri.ais.spec.core.ports.outgoing.SpecSourceRepository;
 import si.fri.ais.workspace.core.models.WorkspaceContext;
 import si.fri.ais.workspace.core.ports.outgoing.WorkspaceService;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -21,25 +22,25 @@ public class RawSpecServiceImpl implements RawSpecService {
 
 
     @Override
-    public List<RawSpec> publications(SpecSourceContext context) {
+    public List<Spec> publications(SpecSourceContext context) {
         return publications(context, false);
     }
 
     @Override
-    public List<RawSpec> publications(SpecSourceContext context, boolean includeDeleted) {
+    public List<Spec> publications(SpecSourceContext context, boolean includeDeleted) {
         return source(context).map(source -> specs.publications(source.getId(), includeDeleted)).orElseGet(List::of);
     }
 
     @Override
-    public Optional<RawSpec> published(WorkspaceContext context, UUID rawId) {
+    public Optional<Spec> published(WorkspaceContext context, UUID rawId) {
         return workspace(context).flatMap(workspaceId -> workspacePublication(workspaceId, rawId))
                 .flatMap(raw -> specs.published(raw.getId()));
     }
 
     @Override
-    public Optional<String> content(WorkspaceContext context, UUID rawId) {
+    public Optional<InputStream> content(WorkspaceContext context, UUID rawId) {
         return workspace(context).flatMap(workspaceId -> workspacePublication(workspaceId, rawId))
-                .flatMap(raw -> specs.content(raw.getId()));
+                .flatMap(raw -> specs.content(raw.getId(), false));
     }
 
     @Override
@@ -64,7 +65,7 @@ public class RawSpecServiceImpl implements RawSpecService {
                 .filter(source -> workspaceId.equals(source.getWorkspaceId())));
     }
 
-    private Optional<RawSpec> workspacePublication(UUID workspaceId, UUID rawId) {
+    private Optional<Spec> workspacePublication(UUID workspaceId, UUID rawId) {
         return specs.get(rawId).filter(raw -> sources.source(raw.getSourceId())
                 .filter(source -> workspaceId.equals(source.getWorkspaceId()))
                 .isPresent());

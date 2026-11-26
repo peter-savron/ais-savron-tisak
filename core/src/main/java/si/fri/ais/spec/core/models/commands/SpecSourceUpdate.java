@@ -20,4 +20,10 @@ public class SpecSourceUpdate {
     private String subfolder;
     private boolean clearSubfolder;
     private List<@NotBlank String> selectionRules;
+
+    /** The subfolder cannot be supplied when the update requests clearing it. */
+    @AssertTrue(message = "Cannot set a subfolder when clearSubfolder is true")
+    public boolean isSubfolderOptionsValid() {
+        return !clearSubfolder || subfolder == null;
+    }
 }

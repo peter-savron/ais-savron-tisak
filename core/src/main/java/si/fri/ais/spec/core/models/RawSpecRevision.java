@@ -7,9 +7,9 @@ import lombok.Builder;
 import java.time.Instant;
 
 /**
- * A published version of a RawSpec.
+ * A published version of a Spec.
  *
- * @param id opaque revision identifier accepted by the diff operation for this RawSpec
+ * @param id opaque revision identifier accepted by the diff operation for this Spec
  * @param publishedAt time when this version was published
  */
 @Builder

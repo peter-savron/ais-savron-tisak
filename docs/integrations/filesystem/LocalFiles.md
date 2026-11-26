@@ -12,7 +12,7 @@ The Markdown returned by `describeConfiguration()` documents the following setti
 
 ## Paths and retrieval
 
-Resolve the absolute file URI to a normalized absolute local directory path at creation and whenever the root is updated. The effective spec root is that directory plus the optional subfolder. Store each OriginalSpec locator relative to the effective spec root and use it as the source-scoped item identity. For source root `file:///work/repo`, subfolder `spec` and file `/work/repo/spec/api/orders.md`, the locator is `api/orders.md`.
+Resolve the absolute file URI to a normalized absolute local directory path at creation and whenever the root is updated. The effective spec root is that directory plus the optional subfolder. Store each Spec locator relative to the effective spec root and use it as the source-scoped item identity. For source root `file:///work/repo`, subfolder `spec` and file `/work/repo/spec/api/orders.md`, the locator is `api/orders.md`.
 
 To get a file, resolve its relative locator against the effective spec root and read the resulting absolute path directly. Reject locators that are absolute or resolve outside that root. Never follow a symbolic link, including in a parent path, the configured root or subfolder, or the final file. Apply the same rule at open time and during discovery. Apply the current selection rules before returning bytes. An ignored path is excluded even if it exists. For a selected path, verify the bytes against the discovery reference and return them through a stable read handle. Throw `VERSION_CHANGED` on a mismatch. Throw a reason-coded read exception for missing, excluded, access denied or unresolved paths.
 
