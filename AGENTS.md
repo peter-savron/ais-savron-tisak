@@ -32,6 +32,8 @@ Inside a feature there is the `api` section reserved to the outside facing inter
 
 Key technologies used are Java 21 and Maven 3.9. If you think a dependency is missing, ask the Master whether you should add to the [pom](pom.xml). Other specific info on dependencies used will be passed to you as skills.
 
+Do not use `var` shorthands, always write class names.
+
 #### Quarkus
 
 You are writing in the Quarkus CDI framework do always prefer injection and `@ApplicationScoped`  beans over static methods and classes.

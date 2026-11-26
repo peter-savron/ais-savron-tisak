@@ -11,8 +11,12 @@ import lombok.Setter;
 @SuperBuilder
 @Setter
 public class OriginalSpec {
-    /** Source selection resolved by core while processing an upstream observation. */
-    public enum Selection { SELECTED, MISSING, EXCLUDED, UNRESOLVED, ACCESS_DENIED }
+    /**
+     * Discovery and processing state for this upstream item. NEW and CHANGED are provider observations;
+     * SELECTED means selected input still needs processing or processing failed; UP_TO_DATE means
+     * synchronization and processing succeeded. The remaining values describe availability or scope.
+     */
+    public enum Status { UP_TO_DATE, SELECTED, MISSING, EXCLUDED, UNRESOLVED, ACCESS_DENIED, NEW, CHANGED }
 
     public enum ProcessingStatus { PENDING, DONE, FAILED, UNAVAILABLE }
 
@@ -20,9 +24,10 @@ public class OriginalSpec {
     private UUID id;
 
     /** Current source assessment, such as SELECTED or EXCLUDED. */
-    @NotNull private Selection selection;
+    /** Current discovery and processing state. */
+    @NotNull private Status status;
 
-    /** Stable publication UUID, retained after removal. Null until the first successful publication. */
+    /** Stable publication UUID, reserved before the first publication write and retained after removal. */
     private UUID rawSpecId;
 
     @NotNull private UUID sourceId;

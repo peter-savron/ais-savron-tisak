@@ -27,12 +27,13 @@ An OriginalSpec stores the source ID, locator and metadata. The original content
 | Item identity | Yes | The normalized path relative to the effective spec root is the sole identity within a source. The source supplies the lookup scope. A content hash identifies an observation of the item. |
 | Current locator | Yes | Relative path used to retrieve this observation. |
 | Input format | Yes | Upstream format of the item, which may be binary. |
+| `status` | Yes | Combined discovery and processing state. `UP_TO_DATE` means synchronization and processing succeeded. `SELECTED` means selected input is pending or processing failed. `NEW` and `CHANGED` describe provider observations; `MISSING`, `EXCLUDED`, `ACCESS_DENIED` and `UNRESOLVED` describe availability or scope. |
 | Original content hash | After a successful read | Hash of the exact retrieved bytes for a file or of the SpecType’s stable serialization for other content. |
 | Upstream revision | When available | Upstream revision of the content actually retrieved. |
 | Brief metadata | Yes | Short plain-text description for an LLM giving the item’s title or name and its origin, such as “Release checklist from the Platform team wiki.” When the title is unavailable, use the item locator and source type. |
 | `processingStatus` | Yes | State of the observed item. See the transitions below. |
 
-A new or changed reference is `PENDING`. The feature that continues processing marks that version `DONE` on success or `FAILED` on a processing error. A confirmed missing item or an item known to be inaccessible is `UNAVAILABLE`. Rediscovery after unavailability or an explicit processing retry returns the item to `PENDING`. A completion for an older observation cannot overwrite the state of a newer one.
+A new or changed reference is `PENDING`. The feature that continues processing marks that version `DONE` on success or `FAILED` on a processing error. A confirmed missing item or an item known to be inaccessible is `UNAVAILABLE`. Rediscovery after unavailability or an explicit processing retry returns the item to `PENDING`. A completion for an older observation cannot overwrite the state of a newer one. Successful synchronization sets `status` to `UP_TO_DATE`; selected input that still needs processing or whose processing failed remains `SELECTED`.
 
 ### RawSpec
 
@@ -45,7 +46,7 @@ A new or changed reference is `PENDING`. The feature that continues processing m
 | Input format | Yes | OriginalSpec’s upstream content format. |
 | Original content hash | Yes | OriginalSpec’s hash of the retrieved content. |
 | Upstream revision | When available | Revision recorded on the OriginalSpec. |
-| Deletion state | Yes | Active or soft-deleted. Retain the last live publication for [rollback](SpecSourceService.md#removal-and-visibility). |
+| Deletion state | Yes | Active or soft-deleted. Retain the last live publication so a later successful sync can compare against and reactivate it. |
 | Normalized text | Yes | LLM-readable text that preserves available document structure or chat message order. |
 | Output format | Yes | Format of the normalized text, preferably Markdown or plain text. |
 | Brief metadata | Yes | Description carried forward from the OriginalSpec, kept separate from the normalized text. |
@@ -76,10 +77,10 @@ A [SpecSource](#specsource) stores one workspace’s configuration. A `SpecProvi
 | --- | --- |
 | `describeConfiguration()` | Return a nonempty Markdown guide with required and optional settings, root and subfolder syntax, selection rules and an example. This operation takes no arguments and works before source creation, without an upstream connection. |
 | `validate(source)` | Check the proposed source configuration against the type’s requirements on creation or update. Reject invalid settings. |
-| `discover(source, known)` | Apply the current selection rules within the root and optional subfolder. Use previously known items to account for paths that have left the selection. Return a `Discovery` with item observations and issues after covering the full selection. Raise DISCOVERY_FAILED if the scan cannot cover the full selection. |
+| `discover(source, known)` | Apply the current selection rules within the root and optional subfolder. Use previously known items to account for paths that have left the selection. Return changed OriginalSpecs directly. Use their status for item-level outcomes; raise DISCOVERY_FAILED when discovery issues occur. |
 | `read(source, observed)` | Reassess the same source and item identity at read time. A successful `Read` supplies a stable file containing the observed version. Throw a reason-coded read exception if the content cannot be retrieved or its version has changed. Core passes the file to the [DocumentProcessor](DocumentProcessor.md) and closes the read handle after conversion. |
 
-Discovery omits unchanged items, including items that remain missing or excluded. Each observation carries the OriginalSpec, the upstream condition, and a reason for an unsuccessful assessment. Use `NEW` for additions, `CHANGED` for changed or reselected files, `EXCLUDED` when a rule excludes it, `MISSING` for confirmed absence, `ACCESS_DENIED` for a known permission failure and `UNRESOLVED` when the provider cannot establish the outcome. A complete scan can yield an empty selection. Omission alone leaves an item’s status unknown.
+Discovery omits unchanged items, including items that remain missing or excluded. Return each changed OriginalSpec directly, with its `status` set to `NEW` for additions, `CHANGED` for changed or reselected files, `EXCLUDED` when a rule excludes it, `MISSING` for confirmed absence, `ACCESS_DENIED` for a known permission failure and `UNRESOLVED` when the provider cannot establish the outcome. Throw DISCOVERY_FAILED when discovery issues occur. A complete scan can yield an empty selection. Omission alone leaves an item’s status unchanged.
 
 For example, the `LOCAL_FILES` configuration with root `file:///work/repo` and subfolder `spec` reads selection rules from `/work/repo/spec/.specignore`. A line containing `/drafts/` excludes the top-level drafts directory. If a previous scan selected `drafts/order.md`, the next scan reports that known path as `EXCLUDED`. A regular file at `api/order.md` remains selected under this rule. If its bytes change between discovery and retrieval, the read fails with `VERSION_CHANGED`. A later discovery can report the new version.
 
