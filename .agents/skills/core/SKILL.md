@@ -27,6 +27,10 @@ All write methods in repository should return `void`, query operations should re
 
 ## Core implementations
 
+Assume that all required CDI beans will be provided by the time the application build is triggered. Do not add build properties or profiles to work around missing beans during implementation.
+
+Expose a domain-specific for utils, depending on context it could be either checked or unchecked, use checked Exceptions when caller should be aware that he should handle negative scenarios. Translate underlying I/O failures at the processing boundary and preserve their causes.
+
 Inject repository interfaces directly through service constructors. Do not wrap repository dependencies in CDI `Instance<T>`, unless there is a valid reason to search for correct instance.
 
 Single-record lookups exposed to other features should return `Optional` when a record may be absent. When an operation requires the record, the calling feature should use `orElseThrow` with its own exception.
