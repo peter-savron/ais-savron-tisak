@@ -65,6 +65,8 @@ Make reusable prompts that own a JLine dependency `@ApplicationScoped` CDI beans
 
 Provide a fallback for interactive CLI functionality that depends on enhanced terminal capabilities. Keep the action usable with standard keys or command options in basic environments such as GNOME Terminal and Windows cmd.exe. Show available shortcuts in the prompt and verify the fallback through the packaged CLI with the enhanced capability disabled.
 
+Use short source comments beside custom key bindings to name the keys and describe their actions. Identify terminal-specific sequences and fallback shortcuts where they are bound.
+
 Use `LinePrompt` for unmasked text. Apply feature-specific validation and retries at the call site. Let EOF and cancellation reach the CLI exception mapper.
 
 Use the injected JLine 4 input component that matches the feature's existing prompt pattern. For a single masked password, follow the registration action. Inject the project's `org.jline.reader.LineReader` and call `readLine(message, '*')`. Disable history while reading credentials, restore the previous setting in `finally`, and flush the terminal. Use the `jline-prompt` builders for commands designed around a structured prompt flow.
