@@ -6,11 +6,15 @@ import picocli.CommandLine;
 import si.fri.ais.user.api.cli.actions.UserPasswordCliResolver;
 import si.fri.ais.user.core.ports.outgoing.UserAuthnService;
 import si.fri.ais.workspace.api.cli.WorkspaceCliAction;
+import si.fri.ais.workspace.api.cli.exceptions.WorkspaceCliException;
 import si.fri.ais.workspace.core.models.Workspace;
 import si.fri.ais.workspace.core.models.WorkspaceContext;
 import si.fri.ais.workspace.core.ports.outgoing.WorkspaceService;
 
 import java.util.Arrays;
+
+import static si.fri.ais.workspace.api.cli.exceptions.WorkspaceCliException.Code.INVALID_PASSWORD_OPTION;
+import static si.fri.ais.workspace.api.cli.exceptions.WorkspaceCliException.Code.PASSWORD_REQUIRED;
 
 @Dependent
 @CommandLine.Command(name = "delete", description = "Delete a workspace", mixinStandardHelpOptions = true)
@@ -49,9 +53,13 @@ public class WorkspaceDeleteCliAction implements WorkspaceCliAction {
             boolean interactive = resolver.interactive(false);
             Workspace workspace = resolver.workspace(userId, name, interactive);
             if (password == null && !interactive) {
-                throw new IllegalArgumentException("Supply --password when a terminal is unavailable.");
+                throw new WorkspaceCliException(PASSWORD_REQUIRED);
             }
-            password = passwords.readPassword(password, "Password to delete %s: ".formatted(workspace.getName()));
+            try {
+                password = passwords.readPassword(password, "Password to delete %s: ".formatted(workspace.getName()));
+            } catch (IllegalArgumentException exception) {
+                throw new WorkspaceCliException(INVALID_PASSWORD_OPTION, null, exception);
+            }
             authentication.verifyPassword(userId, password);
             workspaces.delete(new WorkspaceContext(userId, workspace.getId()));
             terminal.writer().printf("Deleted workspace %s.%n", workspace.getName());

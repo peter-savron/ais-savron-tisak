@@ -6,12 +6,15 @@ import picocli.CommandLine;
 import si.fri.ais.common.api.cli.prompts.LinePrompt;
 import si.fri.ais.common.api.cli.prompts.LongTextPrompt;
 import si.fri.ais.workspace.api.cli.WorkspaceCliAction;
+import si.fri.ais.workspace.api.cli.exceptions.WorkspaceCliException;
 import si.fri.ais.workspace.core.models.Workspace;
 import si.fri.ais.workspace.core.models.WorkspaceContext;
 import si.fri.ais.workspace.core.models.commands.WorkspaceUpdate;
 import si.fri.ais.workspace.core.ports.outgoing.WorkspaceService;
 
 import java.util.Objects;
+
+import static si.fri.ais.workspace.api.cli.exceptions.WorkspaceCliException.Code.EDIT_REQUIRED;
 
 @Dependent
 @CommandLine.Command(name = "update", description = "Update workspace metadata", mixinStandardHelpOptions = true)
@@ -58,7 +61,7 @@ public class WorkspaceUpdateCliAction implements WorkspaceCliAction {
         boolean interactive = resolver.interactive(noInteractive);
         boolean hasEdits = newName != null || title != null || description != null;
         if (!interactive && !hasEdits) {
-            throw new IllegalArgumentException("Supply at least one of --new-name, --title, or --description.");
+            throw new WorkspaceCliException(EDIT_REQUIRED);
         }
         if (newName != null) {
             resolver.validateName(newName, "new workspace name");

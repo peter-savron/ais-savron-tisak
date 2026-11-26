@@ -14,6 +14,7 @@ import si.fri.ais.session.core.models.commands.SessionResolve;
 import si.fri.ais.session.core.ports.outgoing.SessionService;
 import si.fri.ais.user.core.models.User;
 import si.fri.ais.user.core.ports.outgoing.UserService;
+import si.fri.ais.workspace.api.cli.exceptions.WorkspaceCliException;
 import si.fri.ais.workspace.core.exceptions.WorkspaceException;
 import si.fri.ais.workspace.core.models.Workspace;
 import si.fri.ais.workspace.core.ports.outgoing.WorkspaceService;
@@ -21,11 +22,17 @@ import si.fri.ais.workspace.core.ports.outgoing.WorkspaceService;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
+import static si.fri.ais.workspace.api.cli.exceptions.WorkspaceCliException.Code.DESCRIPTION_TOO_LONG;
+import static si.fri.ais.workspace.api.cli.exceptions.WorkspaceCliException.Code.INVALID_NAME;
+import static si.fri.ais.workspace.api.cli.exceptions.WorkspaceCliException.Code.LOGIN_REQUIRED;
+import static si.fri.ais.workspace.api.cli.exceptions.WorkspaceCliException.Code.NAME_REQUIRED_FOR_SELECTION;
+import static si.fri.ais.workspace.api.cli.exceptions.WorkspaceCliException.Code.NO_WORKSPACES;
+import static si.fri.ais.workspace.api.cli.exceptions.WorkspaceCliException.Code.USER_NOT_FOUND;
+import static si.fri.ais.workspace.api.cli.exceptions.WorkspaceCliExceptionMapper.NAME_RULES;
+
 @ApplicationScoped
 public class WorkspaceCliResolver {
     private static final Pattern NAME = Pattern.compile(NamedObject.NAME_FORMAT);
-    private static final String NAME_RULES =
-            "Use 1 to 64 ASCII letters, digits, underscores, or hyphens, starting with a letter.";
 
     private final LineReader reader;
     private final SelectionPrompt selection;
@@ -49,9 +56,9 @@ public class WorkspaceCliResolver {
         if (name != null) {
             validateName(name, "user name");
             User user = users.getUser(name)
-                    .orElseThrow(() -> new IllegalArgumentException("User %s was not found.".formatted(name)));
+                    .orElseThrow(() -> new WorkspaceCliException(USER_NOT_FOUND, name));
             if (!user.isLogged()) {
-                throw new IllegalStateException("Run 'user login --name %s' and retry.".formatted(name));
+                throw new WorkspaceCliException(LOGIN_REQUIRED, name);
             }
             return user.getId();
         }
@@ -71,11 +78,11 @@ public class WorkspaceCliResolver {
                     .orElseThrow(() -> new WorkspaceException(WorkspaceException.Code.WORKSPACE_NOT_FOUND));
         }
         if (!interactive) {
-            throw new IllegalArgumentException("Supply --name to select a workspace.");
+            throw new WorkspaceCliException(NAME_REQUIRED_FOR_SELECTION);
         }
         var candidates = workspaces.list(userId);
         if (candidates.isEmpty()) {
-            throw new IllegalArgumentException("You have no workspaces to select.");
+            throw new WorkspaceCliException(NO_WORKSPACES);
         }
         return selection.select(candidates, Workspace::getName);
     }
@@ -100,14 +107,13 @@ public class WorkspaceCliResolver {
 
     void validateName(String name, String field) {
         if (!NAME.matcher(name).matches()) {
-            throw new IllegalArgumentException("Invalid " + field + ". " + NAME_RULES);
+            throw new WorkspaceCliException(INVALID_NAME, field);
         }
     }
 
     void validateDescription(String description) {
         if (description != null && description.length() > Workspace.DESCRIPTION_LIMIT) {
-            throw new IllegalArgumentException("Workspace descriptions support at most %d characters."
-                    .formatted(Workspace.DESCRIPTION_LIMIT));
+            throw new WorkspaceCliException(DESCRIPTION_TOO_LONG);
         }
     }
 }

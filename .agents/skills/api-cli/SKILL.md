@@ -77,6 +77,8 @@ For new actions that accept a password option, prompt only when no value was pro
 
 Create a feature-specific `{FeatureName}CliException` and a corresponding `CliExceptionMapper` for failures specific to that feature's CLI. Put both in the feature's CLI package. Keep domain exceptions in the core and map them at the CLI boundary. Put shared CLI mappers in the common CLI package.
 
+When adding or changing a CLI action, check the core services it calls and the CLI failures it can raise. In the CLI module, add or reuse a `CliExceptionMapper` for every expected exception type from either source. Verify that each expected failure code has a user-facing message. Reserve the fallback mapper for unexpected failures.
+
 Default to one `CliExceptionMapper` per exception type. A mapper may translate multiple enum codes carried by its exception type. Let the shared resolver dispatch exceptions and use the fallback mapper for unrecognized types.
 
 Handle all exceptions at the CLI boundary. Print only a friendly, actionable message to the terminal and return an appropriate exit code. Never print raw exception messages, exception types, or stack traces to the terminal. Use a generic user-facing message in the fallback mapper.

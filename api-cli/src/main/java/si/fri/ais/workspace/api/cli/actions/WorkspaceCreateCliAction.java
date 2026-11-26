@@ -6,9 +6,12 @@ import picocli.CommandLine;
 import si.fri.ais.common.api.cli.prompts.LinePrompt;
 import si.fri.ais.common.api.cli.prompts.LongTextPrompt;
 import si.fri.ais.workspace.api.cli.WorkspaceCliAction;
+import si.fri.ais.workspace.api.cli.exceptions.WorkspaceCliException;
 import si.fri.ais.workspace.core.models.Workspace;
 import si.fri.ais.workspace.core.models.commands.WorkspaceCreate;
 import si.fri.ais.workspace.core.ports.outgoing.WorkspaceService;
+
+import static si.fri.ais.workspace.api.cli.exceptions.WorkspaceCliException.Code.NAME_REQUIRED_FOR_CREATE;
 
 @Dependent
 @CommandLine.Command(name = "create", description = "Create a workspace", mixinStandardHelpOptions = true)
@@ -53,7 +56,7 @@ public class WorkspaceCreateCliAction implements WorkspaceCliAction {
         String codeName = name;
         if (codeName == null) {
             if (!interactive) {
-                throw new IllegalArgumentException("Supply --name to create a workspace.");
+                throw new WorkspaceCliException(NAME_REQUIRED_FOR_CREATE);
             }
             codeName = resolver.promptName("Workspace name: ", false);
         } else {

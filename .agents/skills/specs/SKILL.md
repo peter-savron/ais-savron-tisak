@@ -9,6 +9,12 @@ Each doc should be relevant for only a feature, if mentioning another feature yo
 
 In `/usage` there is info on how to use the app and start it. Docs are written a posteriori and serve the end user. (or another developer that will test the app). Usage is separate by different final apps, as are `/api` specs. Usage should focus on the exposing ui and sequence of action to be taken to reach an end goal and not on the underlying implementation.
 
+## Post-MVP specs
+
+Keep specs for planned features outside the MVP in `docs/todo/` for later implementation. Active specs may link to a todo spec to show that an unimplemented feature already has a spec. Label the link as post-MVP.
+
+When using skills to write code, exclude `docs/todo/` from documentation searches and skip links into it. Read a todo spec for a coding task only when the Master explicitly asks to implement the feature it describes.
+
 ## Core
 
 Core layer should handle the bulk of the business logic:
