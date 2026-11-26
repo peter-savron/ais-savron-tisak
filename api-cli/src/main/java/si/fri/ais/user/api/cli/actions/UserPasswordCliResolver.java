@@ -27,6 +27,10 @@ public class UserPasswordCliResolver {
     }
 
     char[] readPassword(char[] suppliedPassword) {
+        return readPassword(suppliedPassword, "Password: ");
+    }
+
+    public char[] readPassword(char[] suppliedPassword, String message) {
         if (suppliedPassword != null) {
             validatePassword(suppliedPassword);
             return suppliedPassword;
@@ -35,7 +39,7 @@ public class UserPasswordCliResolver {
         lineReader.printAbove("Enter a password with %d to %d characters. %s Input is masked."
                 .formatted(MIN_PASSWORD_LENGTH, MAX_PASSWORD_LENGTH, PASSWORD_FORMAT_MESSAGE));
         while (true) {
-            char[] password = passwordPrompt.read();
+            char[] password = passwordPrompt.read(message);
             try {
                 validatePassword(password);
                 return password;

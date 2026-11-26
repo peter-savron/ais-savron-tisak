@@ -8,6 +8,8 @@ import si.fri.ais.user.core.models.commands.UserLogin;
 import si.fri.ais.user.core.models.commands.UserPasswordUpdate;
 import si.fri.ais.user.core.ports.outgoing.UserAuthnService;
 
+import java.util.UUID;
+
 @ApplicationScoped
 public class UserAuthnServiceCliImpl implements UserAuthnService {
     private final UserRepository userRepository;
@@ -30,6 +32,15 @@ public class UserAuthnServiceCliImpl implements UserAuthnService {
         }
         user.setLogged(true);
         userRepository.updateUser(user);
+    }
+
+    @Override
+    public void verifyPassword(UUID userId, char[] password) {
+        if (userRepository.getUser(userId)
+                .filter(user -> UserPasswordHash.matches(password, user.getPasswordHash()))
+                .isEmpty()) {
+            throw new SecurityException("Invalid password");
+        }
     }
 
     @Override

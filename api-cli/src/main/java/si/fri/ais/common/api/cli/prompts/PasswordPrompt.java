@@ -13,10 +13,14 @@ public class PasswordPrompt {
     }
 
     public char[] read() {
+        return read("Password: ");
+    }
+
+    public char[] read(String message) {
         Object historySetting = lineReader.getVariable(LineReader.DISABLE_HISTORY);
         lineReader.setVariable(LineReader.DISABLE_HISTORY, Boolean.TRUE);
         try {
-            return lineReader.readLine("Password: ", '*').toCharArray();
+            return lineReader.readLine(message, '*').toCharArray();
         } finally {
             lineReader.setVariable(LineReader.DISABLE_HISTORY, historySetting);
             lineReader.getTerminal().flush();
