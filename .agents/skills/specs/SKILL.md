@@ -17,6 +17,8 @@ When using skills to write code, exclude `docs/todo/` from documentation searche
 
 ## Core
 
+Under `## Core models`, give each model its own subsection with a fields table. Use one row per field.
+
 Core layer should handle the bulk of the business logic:
 
 - authorization of the operations that are executed;
