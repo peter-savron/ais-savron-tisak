@@ -64,20 +64,23 @@ Every operation requires the acting user’s UUID. Core verifies workspace owner
 
 ## Synchronizing OriginalSpecs
 
-Sync discovers the current selection and returns an OriginalSpec reference for each observed file. Compare source ID, relative locator and original content hash against the previous successful observation. A new path is an addition. Different bytes at the same path are an update. Identical bytes preserve the processing state on repeated scans. A rename appears as a disappearance and an addition when the new path has no prior publication.
+Sync discovers the current selection and returns one observation per detected change in content, provenance or selection, including newly discovered files. Compare source ID, relative locator and original content hash against the previous successful observation. A new path is an addition. Different bytes at the same path are an update. Identical bytes preserve the processing state on repeated scans. A rename appears as a disappearance and an addition when the new path has no prior publication.
 
-Report confirmed disappearance separately from exclusion by changed selection rules. An incomplete scan leaves unobserved items unresolved and preserves their last known state. Report individual read failures with the affected locator and reason. Record only verified observations as the new comparison baseline. The [DocumentProcessor](DocumentProcessor.md) transforms a file supplied for an OriginalSpec. Normalization follows conversion.
+Report confirmed disappearance separately from exclusion by changed selection rules. If discovery cannot cover the full selection, fail the sync before applying observations. Report individual read failures with the affected locator and reason. Record only verified observations as the new comparison baseline. The [DocumentProcessor](DocumentProcessor.md) transforms a file supplied for an OriginalSpec. Normalization follows conversion.
 
-## SpecSource interface
+## SpecProvider
 
-The selected SpecType determines which implementation supplies configuration help, including before a source is created. For discovery and reads, core first authorizes the acting user against the source’s workspace.
+A [SpecSource](#specsource) stores one workspace’s configuration. A `SpecProvider` is the outgoing port through which core validates that configuration, discovers upstream items and reads their content. Each provider serves one SpecType. Register its CDI bean with an explicit `@Named` value matching the stable, case-sensitive type identifier. Core uses that name to resolve the provider. Core checks workspace ownership before discovery and reads.
 
-| Operation | Input | Result |
-| --- | --- | --- |
-| `String describeConfiguration()` | No arguments | Every implementation returns a nonempty Markdown guide describing its required and optional settings, accepted root and subfolder syntax, selection rules and an example configuration. The guide describes the type and is available without a configured source or upstream connection. |
-| Discover items | SpecSource | Apply the selection rules within the configured subfolder, or across the source root when the subfolder is omitted. Return the items observed within that scope as OriginalSpec references, each with its identity, current locator and upstream revision when available. Indicate whether discovery covered the entire selection. For incomplete discovery, return any observations obtained and the reason coverage was incomplete. |
-| Read item | SpecSource, item identity and last known locator | Resolve the reference and return the upstream content with its locator, hash and available revision at read time. If the read fails, identify the item and report access denied, confirmed missing or unresolved, with the reason. |
+| Operation | Provider contract |
+| --- | --- |
+| `describeConfiguration()` | Return a nonempty Markdown guide with required and optional settings, root and subfolder syntax, selection rules and an example. This operation takes no arguments and works before source creation, without an upstream connection. |
+| `validate(source)` | Check the proposed source configuration against the type’s requirements on creation or update. Reject invalid settings. |
+| `discover(source, known)` | Apply the current selection rules within the root and optional subfolder. Use previously known items to account for paths that have left the selection. Return a `Discovery` with item observations and issues after covering the full selection. Raise DISCOVERY_FAILED if the scan cannot cover the full selection. |
+| `read(source, observed)` | Reassess the same source and item identity at read time. A successful `Read` supplies a stable file containing the observed version. Throw a reason-coded read exception if the content cannot be retrieved or its version has changed. Core passes the file to the [DocumentProcessor](DocumentProcessor.md) and closes the read handle after conversion. |
 
-A complete discovery with no matches yields an empty selection. An item omitted during incomplete discovery has unknown status. Report confirmed missing only when the source establishes absence. If restricted visibility could explain a missing item, report access denied when known or unresolved otherwise.
+Discovery omits unchanged items, including items that remain missing or excluded. Each observation carries the OriginalSpec, the upstream condition, and a reason for an unsuccessful assessment. Use `NEW` for additions, `CHANGED` for changed or reselected files, `EXCLUDED` when a rule excludes it, `MISSING` for confirmed absence, `ACCESS_DENIED` for a known permission failure and `UNRESOLVED` when the provider cannot establish the outcome. A complete scan can yield an empty selection. Omission alone leaves an item’s status unknown.
+
+For example, the `LOCAL_FILES` configuration with root `file:///work/repo` and subfolder `spec` reads selection rules from `/work/repo/spec/.specignore`. A line containing `/drafts/` excludes the top-level drafts directory. If a previous scan selected `drafts/order.md`, the next scan reports that known path as `EXCLUDED`. A regular file at `api/order.md` remains selected under this rule. If its bytes change between discovery and retrieval, the read fails with `VERSION_CHANGED`. A later discovery can report the new version.
 
 The [LOCAL_FILES integration](../integrations/filesystem/LocalFiles.md) defines filesystem discovery and reads. The [post-MVP sync and history proposal](../todo/SpecSource.md) describes how core can use these observations and the resulting RawSpec.

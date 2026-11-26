@@ -12,18 +12,33 @@ description: Implement app core functionalities
 ## Models
 
 One model for each operation input (Action) - Action inputs should be annotated with `@SuperBuilder` `@NoArgsConstructor` and `@Getter` so they are immutable.
+Create a common core context model for each feature to group the identifiers shared by its operations. Embed it in action inputs with cascading validation. When the context is the entire input, pass it directly.
 
 One model per feature - well documented - model should be annotated with `@SuperBuilder` `@Getter` and `@Setter`.
+
+When creating records, add them `@Builder` from Lombok, create them via builder instead of all args constructor for readability purposes.
 
 All well validated
 
 Avoid duplicating Jakarta Bean Validation constraints in constructors. Use cascading validation at the service boundary for constrained input models.
 
+Model fields should be documented with Javadocs for clarity, give examples for values and usage.
+
+Specs might underdefine model fields. If there are fields missing that are relevant for core functionalities, a spec change should be proposed to the Master, and model fields should be extended to include relevant data.
+
 ## Interfaces
+
+Each interface should be documented to know how to implement it. Each method should have matching Javadocs which describe how behaves, expects and returns.
+
+Do not throw generic Java exceptions from core interfaces. When implementing a core interface, implement feature-specific exceptions with stable codes for each failure reason so issues are trackable. Document the failures on the interface and preserve the cause when translating an underlying exception.
 
 ### Repositories
 
 All write methods in repository should return `void`, query operations should return either `Optional` or `List`. Update interfaces should take just one parameter which will be updated in place.
+
+Repository interface should specify `get` (multiple if there are multiple possible identifiers), `list`, `query`, `create`, `update`, `delete` methods. Other methods should not be added unless there is a quite specific need for it specified by the master.
+
+All authorization is done in the core, so only data required for the read/write operation should be passed. 
 
 ## Core implementations
 

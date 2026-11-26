@@ -10,13 +10,12 @@ The [spec-source CLI](../api/cli/SpecSource.md) exposes source management and sy
 
 | Field | Required | Meaning |
 | --- | --- | --- |
-| Sync ID | Yes | Identifies this sync of one source, including across recovery of the same invocation. |
 | Source ID | Yes | SpecSource whose observations were reconciled. |
-| Scan complete | Yes | Whether discovery covered the entire selection. Conversion failures are reported independently. |
-| Item outcomes | Yes | One OriginalSpecChange per identified item processed or compared during this sync, including unsuccessful and unchanged items. |
+| Scan complete | Yes | True for a successful sync. Conversion failures are reported independently. |
+| Item outcomes | Yes | One OriginalSpecChange per detected change or retried item processed during this sync. A scan with no changes or retries returns an empty outcome list. |
 | Issues | Yes | Failed or unresolved items or scopes, their locators when known, and reasons. An unresolved observation alone produces no deletion. |
 | Counts by extent | Yes | Count item outcomes by extent, including zero. The changed total counts NEW, UPDATED, UPDATED_NO_RELEVANT_CHANGE, DELETED and MOVED. Count UNTRACKED, UNCHANGED, EXCLUDED and UNRESOLVED separately from that total. |
-| Observed item count | When available | Number of distinct selected items discovered in this scan. On incomplete discovery it counts only the observed portion. |
+| Observed item count | When available | Number of distinct selected items discovered in this scan. |
 | Publication revision | When supplied by storage | Opaque identifier for the published sync. |
 
 ### OriginalSpecChange
@@ -39,15 +38,35 @@ The [spec-source CLI](../api/cli/SpecSource.md) exposes source management and sy
 | DELETED | The previously published item was soft-deleted after confirmed absence or exclusion. |
 | MOVED | Reserved for a source contract that can explicitly report moves. Relative-path reconciliation never infers a move. A rename to a previously unseen path yields DELETED and NEW. |
 | UNTRACKED | A selected file could not be published and has no active RawSpec. Examples include an unsupported format on first sync and a failed restoration of a soft-deleted item. |
-| UNCHANGED | An active RawSpec remains at its previous publication. This includes a verified unchanged input and a failed attempt to fetch, convert or publish a newer observation. |
+| UNCHANGED | An active RawSpec remains at its previous publication. This includes restored access to verified published input and a failed attempt to fetch, convert or publish a newer observation. |
 | EXCLUDED | A known path is outside the current selection and has no active RawSpec to retire. If exclusion retires an active publication in this sync, report DELETED. |
 | UNRESOLVED | The source explicitly reports an identified item whose presence or selection could not be established. Preserve its prior state and publication, if any, and report the cause as an issue. |
 
 Classify each item once. Use UNRESOLVED for an inconclusive source observation. When the file is known to be selected and a read or processing attempt fails, use UNTRACKED or UNCHANGED according to whether an active RawSpec exists. EXCLUDED applies only to known paths; it does not require enumerating ignored subtrees.
 
-For a failed item, also record the issue and apply the existing OriginalSpec processing status. A retained publication with an update error remains eligible for retry. Failures with no identifiable item, such as an unreadable directory, are scope issues only. An incomplete scan supplies no file outcome for paths it could not observe or assess.
+For a failed item, also record the issue and apply the existing OriginalSpec processing status. A retained publication with an update error remains eligible for retry. Scope failures that prevent full discovery abort the sync before reconciliation.
 
 On restoration at the same identity, compare against the last live text. Report UPDATED for different text and UPDATED_NO_RELEVANT_CHANGE for identical text, including when restoration alone changed visibility. Storage supplies text comparisons and any line counts. Core classifies the change even when detailed diff statistics are unavailable.
+
+### SpecDiff
+
+| Field | Required | Meaning |
+| --- | --- | --- |
+| Base published at | Yes | Publication timestamp of version A. |
+| Target published at | Yes | Publication timestamp of version B. |
+| Edits | Yes | Non-overlapping line edits in file order. Omit unchanged lines and context. Identical content yields an empty list. |
+| Potentially stale | Yes | Whether the source was syncing in the same snapshot. |
+
+### LineEdit
+
+| Field | Required | Meaning |
+| --- | --- | --- |
+| Base offset | Yes | Number of lines before the edit in the base revision. |
+| Target offset | Yes | Number of lines before the edit in the target revision. |
+| Base lines | Yes | Removed or replaced lines. Empty for insertion. |
+| Target lines | Yes | Inserted or replacement lines. Empty for deletion. |
+
+A replacement has lines on both sides. Offsets count from zero. An insertion before the first line has a base offset of zero. An insertion after the last line has a base offset equal to the base line count. Preserve line endings where present so a change to the final newline can be represented.
 
 ## Operations
 
@@ -57,7 +76,7 @@ On restoration at the same identity, compare against the last live text. Report 
 | Sync source | Discover changes and process eligible items. Return the SpecSyncResult for the committed batch, including issues for unsuccessful items. |
 | List source items | Given a source ID, return item identities, locators, current selection and processing states, and published RawSpec UUIDs where available. Include pending or failed items even before their first publication. |
 | Get published RawSpec | Given a RawSpec UUID, return the last successfully published metadata and text together with the current item state. Reads use the published result even if upstream is offline. An item with no successful publication has no RawSpec to get. |
-| List revisions and compare | For an active RawSpec, list its published revision IDs in order. Given two revisions of that UUID, request the per-file diff from storage. Return the base and target IDs and the storage-produced text changes. Metadata-only edits yield an empty text diff. |
+| List revisions and compare | For an active RawSpec, list its published revision IDs in order. Given two revisions of that UUID, request the per-file diff from storage. Return the structured line edits in [SpecDiff](#specdiff). Metadata-only edits yield an empty text diff. |
 | Roll back removal | Given the workspace and deleted RawSpec UUID, verify ownership using retained metadata and restore the last live publication under its original UUID. Return the restored revision. Repeating the same request must preserve later changes. |
 
 ## Removal and visibility
@@ -68,11 +87,11 @@ Core decides when to publish, retire or restore. Storage computes each requested
 
 ## Reads and writes during sync
 
-Atomically claim an ACTIVE source as SYNCING with the sync ID before discovery. The owning sync alone may stage changes and publish them. Reject competing syncs and all other mutations of that source or its elements (including update, delete, RawSpec restore and background writes) with a source-busy outcome. Check the claim at write time so previously admitted work cannot slip through. Unrelated sources remain available.
+Atomically claim an ACTIVE source as SYNCING before discovery. The owning sync alone may stage changes and publish them. Reject competing syncs and all other mutations of that source or its elements (including update, delete, RawSpec restore and background writes) with a source-busy outcome. Check the claim at write time so previously admitted work cannot slip through. Unrelated sources remain available.
 
 Reads proceed against committed data. Return `potentiallyStale` with the source status from the same committed snapshot: true while SYNCING and false otherwise. Apply it to source and item reads, history, diffs, and each source represented in lists or search hits. A source-scoped empty list carries the flag on the response. This flag describes in-flight sync only; scan issues and index lag are separate.
 
-Publish the batch and release the claim to ACTIVE atomically, including successful partial or empty syncs. On abort preserve the prior publication and release the claim after discarding or fencing pending writes. After interruption, recover or abort the recorded sync before admitting a new writer. Only the current claim may complete or release the source.
+Publish the batch and release the claim to ACTIVE atomically, including empty syncs and syncs with individual item failures. On abort preserve the prior publication and release the claim after discarding or fencing pending writes. After interruption, confirm the previous worker and its pending writes have stopped before restoring ACTIVE.
 
 ## Source deletion
 
@@ -83,8 +102,8 @@ Publish the batch and release the claim to ACTIVE atomically, including successf
 
 ## Sync
 
-1. Discover items using the current source configuration and apply the [change detection rules](Spec.md#synchronizing-originalspecs). Queue new, changed and reselected soft-deleted items and resume pending or failed observations. Skip unchanged content only for an active publication. If a previously inaccessible item becomes readable with unchanged verified content and a matching active publication, restore its DONE state. Carry forward locator or descriptive metadata changes for the same verified content and identity.
-2. Fetch each eligible item and provide the [DocumentProcessor](DocumentProcessor.md) with its OriginalSpec, a stable file containing the fetched bytes, and a buffered output destination. Verify that the fetched bytes match the observation. If they differ, record a fresh observation and process that version. The service releases any input or output staging resources it owns.
+1. Discover items using the current source configuration and apply the [change detection rules](Spec.md#synchronizing-originalspecs). Queue new, changed and reselected soft-deleted items and resume pending or failed observations. Discovery omits unchanged documents. Core retries stored pending or failed selected items even when discovery reports no change for them. The scan count includes unchanged selected files. If a previously inaccessible item becomes readable with unchanged verified content and a matching active publication, restore its DONE state. Carry forward locator or descriptive metadata changes for the same verified content and identity.
+2. Fetch each eligible item and provide the [DocumentProcessor](DocumentProcessor.md) with its OriginalSpec, a stable file containing the fetched bytes, and a buffered output destination. The provider verifies that the fetched bytes match the discovery observation. A mismatch raises `VERSION_CHANGED` and leaves the item eligible for a later sync. The service releases any input or output staging resources it owns.
 3. Normalize successful output as Markdown or plain text, retaining meaningful structure. Publish the text and its matching provenance together. Assign the RawSpec UUID on first publication and retain it across updates to the same source item. Mark the matching OriginalSpec observation DONE only after publication succeeds.
 4. On a processing or storage failure, record FAILED for that observation and retain the previous publication. One item’s failure allows other items to finish. Confirmed absence or access denial marks the item UNAVAILABLE. Exclusion by selection rules is reported separately. Partial discovery preserves the prior state of unobserved items.
 5. Before publication, verify the source configuration and observation are still current. Retries and concurrent syncs of the same observation produce one publication. A stale completion cannot overwrite a newer result or reinstate an excluded item.
