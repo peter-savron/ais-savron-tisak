@@ -15,7 +15,6 @@ import si.fri.ais.session.core.ports.outgoing.SessionService;
 public class SessionUseCliAction implements SessionCliAction {
     private final SessionService sessions;
     private final SessionCliResolver resolver;
-    private final SessionCliPrinter printer;
 
     @CommandLine.Spec
     CommandLine.Model.CommandSpec spec;
@@ -23,10 +22,9 @@ public class SessionUseCliAction implements SessionCliAction {
     @CommandLine.ArgGroup
     Selector selector;
 
-    public SessionUseCliAction(SessionService sessions, SessionCliResolver resolver, SessionCliPrinter printer) {
+    public SessionUseCliAction(SessionService sessions, SessionCliResolver resolver) {
         this.sessions = sessions;
         this.resolver = resolver;
-        this.printer = printer;
     }
 
     @Override
@@ -59,7 +57,7 @@ public class SessionUseCliAction implements SessionCliAction {
     private void select(SessionSlot terminal, String target) {
         Session selected = sessions.use(SessionUse.builder().terminal(terminal).targetId(target).build())
                 .getEffectiveSession();
-        spec.commandLine().getOut().printf("Using %s session %s.%n", printer.kind(selected.getSlot()), selected.getId());
+        spec.commandLine().getOut().printf("Using %s.%n", SessionCliPrinter.label(selected.getSlot()));
     }
 
     static class Selector {

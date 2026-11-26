@@ -27,6 +27,6 @@ public class SessionStopCliAction implements SessionCliAction {
     public void run() {
         var slot = resolver.slot(false, name);
         sessions.stop(SessionStop.builder().slot(slot).build());
-        spec.commandLine().getOut().printf("Stopped session %s.%n", slot.getId());
+        spec.commandLine().getOut().printf("Stopped %s.%n", SessionCliPrinter.label(slot));
     }
 }

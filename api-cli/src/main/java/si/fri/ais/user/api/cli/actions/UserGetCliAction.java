@@ -32,7 +32,7 @@ public class UserGetCliAction implements UserCliAction {
                 ? service.getUser(lookup.id)
                 : service.getUser(userNameResolver.resolveUserName(lookup == null ? null : lookup.name)))
                 .orElseThrow(() -> new NoSuchElementException("User not found."));
-        spec.commandLine().getOut().printf("%s\t%s%n", user.getId(), user.getName());
+        spec.commandLine().getOut().println(user.getName());
     }
 
     static class Lookup {

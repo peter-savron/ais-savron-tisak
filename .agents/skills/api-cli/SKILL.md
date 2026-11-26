@@ -63,6 +63,8 @@ Store reusable CLI prompts in `si.fri.ais.common.api.cli.prompts`. Add a separat
 
 Make reusable prompts that own a JLine dependency `@ApplicationScoped` CDI beans. Constructor-inject the `LineReader` into `PasswordPrompt` and inject the prompt into each action that uses it. Keep input and validation state local to each call.
 
+Provide a fallback for interactive CLI functionality that depends on enhanced terminal capabilities. Keep the action usable with standard keys or command options in basic environments such as GNOME Terminal and Windows cmd.exe. Show available shortcuts in the prompt and verify the fallback through the packaged CLI with the enhanced capability disabled.
+
 Use `LinePrompt` for unmasked text. Apply feature-specific validation and retries at the call site. Let EOF and cancellation reach the CLI exception mapper.
 
 Use the injected JLine 4 input component that matches the feature's existing prompt pattern. For a single masked password, follow the registration action. Inject the project's `org.jline.reader.LineReader` and call `readLine(message, '*')`. Disable history while reading credentials, restore the previous setting in `finally`, and flush the terminal. Use the `jline-prompt` builders for commands designed around a structured prompt flow.
@@ -71,12 +73,20 @@ For new actions that accept a password option, prompt only when no value was pro
 
 ### Exception handling
 
-Default to one `CliExceptionMapper` per exception type. A mapper may translate multiple enum codes carried by its exception type. Put feature-specific mappers in the feature's CLI package and shared CLI mappers in the common CLI package. Let the shared resolver dispatch exceptions and use the fallback mapper for unrecognized types. Print friendly messages to the terminal and keep stack traces in file logs.
+Create a feature-specific `{FeatureName}CliException` and a corresponding `CliExceptionMapper` for failures specific to that feature's CLI. Put both in the feature's CLI package. Keep domain exceptions in the core and map them at the CLI boundary. Put shared CLI mappers in the common CLI package.
+
+Default to one `CliExceptionMapper` per exception type. A mapper may translate multiple enum codes carried by its exception type. Let the shared resolver dispatch exceptions and use the fallback mapper for unrecognized types.
+
+Handle all exceptions at the CLI boundary. Print only a friendly, actionable message to the terminal and return an appropriate exit code. Never print raw exception messages, exception types, or stack traces to the terminal. Use a generic user-facing message in the fallback mapper.
+
+Annotate exception handlers with Lombok's `@JBossLog` and log the exception to the file log with `log.error(message, exception)`. Pass the exception as the second argument so the file log retains the stack trace.
+
+### CLI output
+
+Keep internal IDs, including UUIDs, database record IDs, terminal PIDs, and reserved
+slot IDs, out of CLI output, prompts, and errors. Display user-facing names or labels.
+If a name cannot be resolved, describe the resource without an ID.
 
 ### Calling core services
 
 You should map command line parameters to core models when invoking core services. First round of validation should be done in the resource, even if you could rely on core validation. In most cases you should call only one service and one of its methods at a time. User session should be resolved at the Cli command level, if needed a SessionService could be used to resolve them.
-
-### Error handling
-
-A mapper for a specific exception should implement `CliExceptionMapper.class`. Exception types that are related only to CLI execution (prompt the Master for clarification) should be implemented in the `api` pacakge, most exceptions should be specified in the core.

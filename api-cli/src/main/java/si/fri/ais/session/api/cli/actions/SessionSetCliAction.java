@@ -39,7 +39,7 @@ public class SessionSetCliAction implements SessionCliAction {
             resolver.promptToKeepWorkspace();
         }
         sessions.set(SessionSet.builder().slot(slot).userId(userId).build());
-        spec.commandLine().getOut().printf("Updated session %s.%n", slot.getId());
+        spec.commandLine().getOut().printf("Updated %s.%n", SessionCliPrinter.label(slot));
     }
 
     static class Selector {

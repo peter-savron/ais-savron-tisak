@@ -33,7 +33,12 @@ public class SessionCliPrinter {
         terminal.flush();
     }
 
-    String kind(SessionSlot slot) {
+    static String label(SessionSlot slot) {
+        String kind = kind(slot);
+        return "named".equals(kind) ? "named session " + slot.getId() : kind + " session";
+    }
+
+    private static String kind(SessionSlot slot) {
         if (slot.isTerminal()) {
             return "terminal";
         }
@@ -43,23 +48,23 @@ public class SessionCliPrinter {
     private void printSession(Session session, String indent) {
         PrintWriter out = terminal.writer();
         out.printf("%skind: %s%n", indent, kind(session.getSlot()));
-        out.printf("%sid: %s%n", indent, session.getId());
-        out.printf("%suser: %s (%s)%n", indent,
-                users.getUser(session.getUserId()).map(NamedObject::getName).orElse("unavailable"),
-                session.getUserId());
+        if ("named".equals(kind(session.getSlot()))) {
+            out.printf("%sname: %s%n", indent, session.getId());
+        }
+        out.printf("%suser: %s%n", indent,
+                users.getUser(session.getUserId()).map(NamedObject::getName).orElse("unavailable"));
         if (session.getWorkspaceId() == null) {
             out.printf("%sworkspace: unset%n", indent);
         } else {
             WorkspaceContext context = new WorkspaceContext(session.getUserId(), session.getWorkspaceId());
-            out.printf("%sworkspace: %s (%s)%n", indent,
-                    workspaces.getWorkspace(context)
-                            .map(NamedObject::getName).orElse("unavailable"),
-                    session.getWorkspaceId());
+            out.printf("%sworkspace: %s%n", indent,
+                    workspaces.getWorkspace(context).map(NamedObject::getName).orElse("unavailable"));
         }
         out.printf("%slastAccessedAt: %s%n", indent, session.getLastAccessedAt());
         out.printf("%sexpiresAt: %s%n", indent, session.getExpiresAt());
         if (session.getUsesSession() != null) {
-            out.printf("%susesSession: %s%n", indent, session.getUsesSession());
+            out.printf("%susesSession: %s%n", indent,
+                    SessionSlot.GLOBAL_ID.equals(session.getUsesSession()) ? "global" : session.getUsesSession());
         }
     }
 }

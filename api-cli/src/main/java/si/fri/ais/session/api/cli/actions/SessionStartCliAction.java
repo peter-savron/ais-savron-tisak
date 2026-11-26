@@ -33,8 +33,8 @@ public class SessionStartCliAction implements SessionCliAction {
     public void run() {
         var slot = resolver.slot(selector != null && selector.global, selector == null ? null : selector.name);
         resolver.validateWorkspaceOption(workspace);
-        var session = sessions.start(SessionStart.builder().slot(slot).userId(resolver.userId(user, false)).build());
-        spec.commandLine().getOut().printf("Started session %s.%n", session.getId());
+        sessions.start(SessionStart.builder().slot(slot).userId(resolver.userId(user, false)).build());
+        spec.commandLine().getOut().printf("Started %s.%n", SessionCliPrinter.label(slot));
     }
 
     static class Selector {

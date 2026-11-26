@@ -8,6 +8,9 @@ public final class LinePrompt {
     }
 
     public static String read(LineReader lineReader, String message) {
+        var terminal = lineReader.getTerminal();
+        terminal.writer().println("Enter submits · Ctrl+C cancels");
+        terminal.flush();
         return lineReader.readLine(message);
     }
 }

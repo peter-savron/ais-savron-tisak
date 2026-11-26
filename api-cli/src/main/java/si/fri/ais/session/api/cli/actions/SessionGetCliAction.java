@@ -32,7 +32,7 @@ public class SessionGetCliAction implements SessionCliAction {
             result = sessions.get(SessionGet.builder().slot(slot).build());
         }
         if (result.isEmpty()) {
-            throw new SessionCliException(SessionCliException.Code.SESSION_INACTIVE, slot.getId());
+            throw new SessionCliException(SessionCliException.Code.SESSION_INACTIVE);
         }
         printer.print(result.get());
     }

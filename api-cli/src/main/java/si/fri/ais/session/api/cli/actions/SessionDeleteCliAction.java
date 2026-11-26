@@ -32,7 +32,7 @@ public class SessionDeleteCliAction implements SessionCliAction {
             if (selector.global) {
                 var slot = resolver.slot(true, null);
                 sessions.stop(SessionStop.builder().slot(slot).build());
-                spec.commandLine().getOut().printf("Deleted session %s.%n", slot.getId());
+                spec.commandLine().getOut().println("Deleted global session.");
             } else {
                 delete(resolver.sessionName(selector.name));
             }
