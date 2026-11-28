@@ -7,11 +7,13 @@ import lombok.experimental.SuperBuilder;
 import si.fri.ais.common.core.models.NamedObject;
 
 import java.util.UUID;
+import java.util.Arrays;
 
+/** Plaintext revealed to a trusted caller; close after use and never expose it to agents. */
 @Getter
 @Setter
 @SuperBuilder
-public class UserSecret extends NamedObject {
+public class UserSecret extends NamedObject implements AutoCloseable {
     /**
      * Owner of the secret.
      */
@@ -31,5 +33,13 @@ public class UserSecret extends NamedObject {
         TEXT,
         INTEGER,
         DECIMAL
+    }
+
+    /** Clears the revealed bytes after the trusted caller has consumed them. */
+    @Override
+    public void close() {
+        if (secret != null) {
+            Arrays.fill(secret, (byte) 0);
+        }
     }
 }

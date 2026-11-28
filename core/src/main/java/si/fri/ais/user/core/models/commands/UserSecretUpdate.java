@@ -1,23 +1,21 @@
 package si.fri.ais.user.core.models.commands;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-import si.fri.ais.common.core.models.NamedObject;
 import si.fri.ais.user.core.models.UserSecret;
-
-import java.util.UUID;
+import si.fri.ais.user.core.models.UserSecretContext;
 
 @Getter
+@NoArgsConstructor
 @SuperBuilder
-public class UserSecretUpdate extends NamedObject {
+public class UserSecretUpdate {
+    /** Identifies the acting user and the existing secret to replace in place. */
+    @NotNull @Valid private UserSecretContext context;
     /**
-     * Owner of the secret.
-     */
-    @NotNull
-    private UUID owner;
-    /**
-     * Decrypted user secret.
+     * Replacement plaintext; the caller owns and clears this array.
      */
     @NotNull
     private byte[] secret;

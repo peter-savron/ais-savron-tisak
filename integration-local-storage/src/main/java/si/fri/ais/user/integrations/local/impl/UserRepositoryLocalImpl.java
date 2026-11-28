@@ -13,6 +13,7 @@ import si.fri.ais.user.core.models.User;
 import si.fri.ais.user.core.ports.incoming.UserRepository;
 import si.fri.ais.user.integrations.local.mappers.UserDocumentMapper;
 import si.fri.ais.user.integrations.local.values.UserArcadeDbValues;
+import si.fri.ais.user.integrations.local.values.UserSecretArcadeDbValues;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -126,11 +127,17 @@ public class UserRepositoryLocalImpl implements UserRepository {
 
     @Override
     public void removeUser(UUID userId) {
-        database.transaction(() -> CommonArcadeDbScripts.deleteById(
-                database,
-                userDocumentType,
-                userId
-        ));
+        database.transaction(() -> {
+            if (database.getSchema().existsType(UserSecretArcadeDbValues.DOCUMENT_TYPE)) {
+                try (ResultSet results = database.command("sql", "DELETE FROM %s WHERE %s = ?"
+                        .formatted(UserSecretArcadeDbValues.DOCUMENT_TYPE, UserSecretArcadeDbValues.OWNER), userId.toString())) {
+                    while (results.hasNext()) {
+                        results.next();
+                    }
+                }
+            }
+            CommonArcadeDbScripts.deleteById(database, userDocumentType, userId);
+        });
 
         Path userDir = storageConfig.dataPath().resolve(userId.toString());
         deleteDirectoryRecursively(userDir);
