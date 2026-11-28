@@ -4,7 +4,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Setter;
 import lombok.Getter;
-import lombok.SuperBuilder;
+import lombok.experimental.SuperBuilder;
 import lombok.experimental.FieldNameConstants;
 
 @Getter
